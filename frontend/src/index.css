@@ -1,0 +1,35 @@
+:root {
+  --cream: #FAF7F2;
+  --sage: #2D4F3E;
+  --sage-light: #4A7361;
+  --coral: #E8836B;
+  --ink: #1A1A1A;
+  --ink-soft: #5C5650;
+  --line: #E2DCD0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.serif {
+  font-family: 'Fraunces', serif;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
