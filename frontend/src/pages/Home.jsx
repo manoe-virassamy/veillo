@@ -49,7 +49,7 @@ export default function Home() {
             Sache enfin <em>ce qu'internet sait</em> de toi.
           </h1>
           <p className="lead">
-            ShieldMe vérifie si tes données ont fuité, t'explique simplement les risques,
+            Veillo vérifie si tes données ont fuité, t'explique simplement les risques,
             et te dit quoi faire — sans jargon, sans panique.
           </p>
           <CheckForm onCheck={handleCheck} loading={loading} />
@@ -62,7 +62,7 @@ export default function Home() {
 
       <section className="features">
         <div className="features-head">
-          <div className="eyebrow">Comment ShieldMe t'accompagne</div>
+          <div className="eyebrow">Comment Veillo t'accompagne</div>
           <h2 className="serif">
             La cybersécurité, sans avoir besoin d'être ingénieur pour la comprendre.
           </h2>
@@ -92,7 +92,7 @@ export default function Home() {
       </section>
 
       <footer>
-        <div>ShieldMe</div>
+        <div>Veillo</div>
         <div>Fait avec soin à Paris</div>
       </footer>
     </>

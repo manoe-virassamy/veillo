@@ -62,7 +62,7 @@ export default function Login() {
       </section>
 
       <footer>
-        <div>ShieldMe</div>
+        <div>Veillo</div>
         <div>Fait avec soin à Paris</div>
       </footer>
     </>

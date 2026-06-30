@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('shieldme_token');
+    const token = localStorage.getItem('veillo_token');
     if (!token) { setLoading(false); return; }
     fetch(`${API_URL}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -19,12 +19,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   function login(token, userData) {
-    localStorage.setItem('shieldme_token', token);
+    localStorage.setItem('veillo_token', token);
     setUser(userData);
   }
 
   function logout() {
-    localStorage.removeItem('shieldme_token');
+    localStorage.removeItem('veillo_token');
     setUser(null);
   }
 

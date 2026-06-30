@@ -9,7 +9,7 @@ const steps = [
   {
     num: "02",
     title: "On croise nos bases de données",
-    desc: "ShieldMe consulte des milliers de fuites de données connues et référencées — des incidents réels où des informations personnelles ont été exposées sur internet.",
+    desc: "Veillo consulte des milliers de fuites de données connues et référencées — des incidents réels où des informations personnelles ont été exposées sur internet.",
   },
   {
     num: "03",
@@ -19,7 +19,7 @@ const steps = [
   {
     num: "04",
     title: "On continue à surveiller pour toi",
-    desc: "Les nouvelles fuites apparaissent chaque semaine. Avec ShieldMe Pro, on t'alerte automatiquement si ton email est impliqué — tu n'as rien à faire.",
+    desc: "Les nouvelles fuites apparaissent chaque semaine. Avec Veillo Pro, on t'alerte automatiquement si ton email est impliqué — tu n'as rien à faire.",
   },
 ];
 
@@ -28,7 +28,7 @@ export default function HowItWorks() {
     <>
       <section className="page-hero">
         <div className="eyebrow">Transparent par design</div>
-        <h1 className="serif">Comment ShieldMe fonctionne</h1>
+        <h1 className="serif">Comment Veillo fonctionne</h1>
         <p className="lead">
           On ne fait pas de magie. On t'explique exactement ce qu'on fait avec ton email, et pourquoi ça marche.
         </p>
@@ -53,7 +53,7 @@ export default function HowItWorks() {
       </section>
 
       <footer>
-        <div>ShieldMe</div>
+        <div>Veillo</div>
         <div>Fait avec soin à Paris</div>
       </footer>
     </>

@@ -48,7 +48,7 @@ export default function Register() {
       <section className="auth-page">
         <div className="auth-box">
           <div className="eyebrow">Créer un compte</div>
-          <h1 className="serif">Rejoins ShieldMe</h1>
+          <h1 className="serif">Rejoins Veillo</h1>
 
           <div className="plan-selector">
             {plans.map(p => (
@@ -91,7 +91,7 @@ export default function Register() {
       </section>
 
       <footer>
-        <div>ShieldMe</div>
+        <div>Veillo</div>
         <div>Fait avec soin à Paris</div>
       </footer>
     </>

@@ -5,7 +5,7 @@ const plans = [
     name: "Gratuit",
     price: "0€",
     period: "pour toujours",
-    desc: "Pour découvrir ShieldMe et faire ta première vérification.",
+    desc: "Pour découvrir Veillo et faire ta première vérification.",
     features: [
       "1 vérification d'email",
       "Score de vulnérabilité",
@@ -84,7 +84,7 @@ export default function Pricing() {
       </section>
 
       <footer>
-        <div>ShieldMe</div>
+        <div>Veillo</div>
         <div>Fait avec soin à Paris</div>
       </footer>
     </>

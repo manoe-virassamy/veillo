@@ -29,5 +29,5 @@ app.post("/api/check", async (req, res) => {
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
 app.listen(PORT, () => {
-  console.log(`ShieldMe backend running on http://localhost:${PORT}`);
+  console.log(`Veillo backend running on http://localhost:${PORT}`);
 });

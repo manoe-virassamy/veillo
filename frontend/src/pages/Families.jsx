@@ -4,7 +4,7 @@ const reasons = [
   {
     icon: "👴",
     title: "Tes parents et grands-parents",
-    desc: "Ils sont souvent les plus ciblés par les arnaques en ligne. ShieldMe surveille pour eux sans qu'ils aient besoin de comprendre comment ça marche.",
+    desc: "Ils sont souvent les plus ciblés par les arnaques en ligne. Veillo surveille pour eux sans qu'ils aient besoin de comprendre comment ça marche.",
   },
   {
     icon: "👶",
@@ -51,7 +51,7 @@ export default function Families() {
         <div className="how-steps">
           <div className="how-step">
             <div className="how-num serif">1</div>
-            <p>Tu crées ton compte ShieldMe Famille</p>
+            <p>Tu crées ton compte Veillo Famille</p>
           </div>
           <div className="how-step">
             <div className="how-num serif">2</div>
@@ -59,7 +59,7 @@ export default function Families() {
           </div>
           <div className="how-step">
             <div className="how-num serif">3</div>
-            <p>ShieldMe surveille tout le monde en continu et t'alerte si quelque chose se passe</p>
+            <p>Veillo surveille tout le monde en continu et t'alerte si quelque chose se passe</p>
           </div>
         </div>
       </section>
@@ -71,7 +71,7 @@ export default function Families() {
       </section>
 
       <footer>
-        <div>ShieldMe</div>
+        <div>Veillo</div>
         <div>Fait avec soin à Paris</div>
       </footer>
     </>

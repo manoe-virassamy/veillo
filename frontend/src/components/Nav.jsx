@@ -8,7 +8,7 @@ export default function Nav() {
     <nav>
       <Link to="/" className="logo" style={{ textDecoration: "none" }}>
         <span className="logo-dot" />
-        <span className="serif">ShieldMe</span>
+        <span className="serif">Veillo</span>
       </Link>
       <div className="links">
         <Link to="/comment-ca-marche">Comment ça marche</Link>
