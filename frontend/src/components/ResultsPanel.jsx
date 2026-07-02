@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function scoreColor(score) {
   if (score >= 70) return "#2D4F3E";
   if (score >= 40) return "#C97A3A";
@@ -35,7 +37,7 @@ export default function ResultsPanel({ result, email, onReset }) {
               <div className="finding-content">
                 <h3>{finding.title}</h3>
                 <p>{finding.description}</p>
-                <a className="finding-action" href="#">{finding.action} →</a>
+                <Link className="finding-action" to="/comment-ca-marche">{finding.action} →</Link>
               </div>
             </div>
           ))}
