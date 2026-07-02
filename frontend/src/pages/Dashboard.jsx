@@ -12,6 +12,44 @@ function scoreColor(score) {
   return '#C9483A';
 }
 
+function InviteForm({ token }) {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState(null);
+
+  async function handleInvite(e) {
+    e.preventDefault();
+    setStatus('sending');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ email }),
+      });
+      setStatus(res.ok ? 'sent' : 'error');
+      if (res.ok) setEmail('');
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  return (
+    <form className="invite-form" onSubmit={handleInvite}>
+      <input
+        type="email"
+        required
+        placeholder="email.du.proche@exemple.com"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+      <button type="submit" className="upgrade-btn" disabled={status === 'sending'}>
+        {status === 'sending' ? 'Envoi...' : 'Inviter un proche →'}
+      </button>
+      {status === 'sent' && <p className="form-note">Invitation envoyée !</p>}
+      {status === 'error' && <p className="error-note">Erreur, réessaie.</p>}
+    </form>
+  );
+}
+
 export default function Dashboard() {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +65,16 @@ export default function Dashboard() {
   }, [token]);
 
   function handleLogout() {
+    logout();
+    navigate('/');
+  }
+
+  async function handleDeleteAccount() {
+    if (!window.confirm('Supprimer définitivement ton compte Veillo ? Cette action est irréversible.')) return;
+    await fetch(`${API_URL}/api/auth/account`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
     logout();
     navigate('/');
   }
@@ -88,11 +136,13 @@ export default function Dashboard() {
           {user.plan === 'famille' && (
             <div className="dash-card">
               <div className="dash-card-label">Membres de la famille</div>
-              <div className="dash-email" style={{ fontSize: '15px', opacity: 0.5 }}>Aucun membre ajouté</div>
-              <button className="upgrade-btn">Inviter un proche →</button>
+              <div className="dash-email" style={{ fontSize: '15px', opacity: 0.5, marginBottom: '14px' }}>Aucun membre ajouté</div>
+              <InviteForm token={token} />
             </div>
           )}
         </div>
+
+        <button className="danger-link" onClick={handleDeleteAccount}>Supprimer mon compte</button>
       </section>
 
       <footer>

@@ -31,6 +31,8 @@ function ensureSchema() {
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ`);
     })();
   }
   return schemaReady;
@@ -72,4 +74,34 @@ export async function getLatestCheck(userId) {
     [userId]
   );
   return rows[0] || null;
+}
+
+export async function deleteUser(id) {
+  await ensureSchema();
+  await pool.query('DELETE FROM users WHERE id = $1', [id]);
+}
+
+export async function setResetToken(email, token, expiresAt) {
+  await ensureSchema();
+  await pool.query(
+    'UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE email = $3',
+    [token, expiresAt, email.toLowerCase()]
+  );
+}
+
+export async function findUserByResetToken(token) {
+  await ensureSchema();
+  const { rows } = await pool.query(
+    'SELECT * FROM users WHERE reset_token = $1 AND reset_token_expires > now()',
+    [token]
+  );
+  return rows[0] || null;
+}
+
+export async function resetPassword(userId, hashedPassword) {
+  await ensureSchema();
+  await pool.query(
+    'UPDATE users SET password = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2',
+    [hashedPassword, userId]
+  );
 }

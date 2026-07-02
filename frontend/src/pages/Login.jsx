@@ -53,6 +53,7 @@ export default function Login() {
               <label>Mot de passe</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="Ton mot de passe" />
             </div>
+            <p className="auth-switch"><Link to="/mot-de-passe-oublie">Mot de passe oublié ?</Link></p>
             {loading && slow && <p className="form-note">Premier chargement un peu long, le serveur se réveille (jusqu'à 30 secondes)...</p>}
             {error && <p className="error-note">{error}</p>}
             <button type="submit" className="auth-btn" disabled={loading}>

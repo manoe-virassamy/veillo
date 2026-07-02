@@ -357,6 +357,28 @@ footer {
   transition: border-color 0.2s, color 0.2s;
 }
 .logout-btn:hover { border-color: #C9483A; color: #C9483A; }
+.danger-link {
+  display: block;
+  margin: 40px auto 0;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.danger-link:hover { color: #C9483A; }
+.invite-form { display: flex; flex-direction: column; gap: 10px; }
+.invite-form input {
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  background: white;
+  outline: none;
+}
+.invite-form input:focus { border-color: var(--sage); }
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

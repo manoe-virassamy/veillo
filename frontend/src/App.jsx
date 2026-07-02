@@ -8,6 +8,8 @@ import Pricing from "./pages/Pricing";
 import Families from "./pages/Families";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import "./App.css";
@@ -23,6 +25,8 @@ export default function App() {
         <Route path="/familles" element={<Families />} />
         <Route path="/inscription" element={<Register />} />
         <Route path="/connexion" element={<Login />} />
+        <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
+        <Route path="/reinitialiser" element={<ResetPassword />} />
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />
