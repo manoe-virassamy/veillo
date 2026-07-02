@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function CheckForm({ onCheck, loading }) {
-  const [email, setEmail] = useState("");
+export default function CheckForm({ onCheck, loading, defaultEmail }) {
+  const [email, setEmail] = useState(defaultEmail || "");
+
+  useEffect(() => {
+    if (defaultEmail) setEmail((prev) => prev || defaultEmail);
+  }, [defaultEmail]);
 
   function handleSubmit(e) {
     e.preventDefault();

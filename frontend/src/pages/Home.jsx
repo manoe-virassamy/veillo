@@ -2,10 +2,12 @@ import { useState } from "react";
 import ShieldVisual from "../components/ShieldVisual";
 import CheckForm from "../components/CheckForm";
 import ResultsPanel from "../components/ResultsPanel";
+import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export default function Home() {
+  const { user } = useAuth();
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [slow, setSlow] = useState(false);
@@ -56,7 +58,7 @@ export default function Home() {
             Veillo vérifie si tes données ont fuité, t'explique simplement les risques,
             et te dit quoi faire — sans jargon, sans panique.
           </p>
-          <CheckForm onCheck={handleCheck} loading={loading} />
+          <CheckForm onCheck={handleCheck} loading={loading} defaultEmail={user?.email} />
           {loading && slow && <p className="form-note">Premier chargement un peu long, le serveur se réveille (jusqu'à 30 secondes)...</p>}
           {error && <p className="error-note">{error}</p>}
         </div>
