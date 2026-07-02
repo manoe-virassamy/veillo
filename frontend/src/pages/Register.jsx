@@ -1,18 +1,10 @@
 import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-const plans = [
-  { id: 'free', name: 'Gratuit', price: '0€', desc: '1 vérification, score de base' },
-  { id: 'pro', name: 'Pro', price: '5€/mois', desc: 'Surveillance continue, alertes, 3 emails' },
-  { id: 'famille', name: 'Famille', price: '10€/mois', desc: 'Jusqu\'à 5 membres, tableau de bord familial' },
-];
-
 export default function Register() {
-  const [searchParams] = useSearchParams();
-  const [plan, setPlan] = useState(searchParams.get('plan') || 'free');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -23,6 +15,7 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (password.length < 8) { setError('Mot de passe trop court (8 caractères minimum)'); return; }
     if (password !== confirm) { setError('Les mots de passe ne correspondent pas'); return; }
     setLoading(true);
     setError(null);
@@ -30,7 +23,7 @@ export default function Register() {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, plan }),
+        body: JSON.stringify({ email, password, plan: 'free' }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error); return; }
@@ -49,21 +42,6 @@ export default function Register() {
         <div className="auth-box">
           <div className="eyebrow">Créer un compte</div>
           <h1 className="serif">Rejoins Veillo</h1>
-
-          <div className="plan-selector">
-            {plans.map(p => (
-              <button
-                key={p.id}
-                type="button"
-                className={`plan-option ${plan === p.id ? 'selected' : ''}`}
-                onClick={() => setPlan(p.id)}
-              >
-                <div className="plan-option-name">{p.name}</div>
-                <div className="plan-option-price">{p.price}</div>
-                <div className="plan-option-desc">{p.desc}</div>
-              </button>
-            ))}
-          </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="field">
