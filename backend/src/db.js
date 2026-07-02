@@ -1,46 +1,45 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import pg from 'pg';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = join(__dirname, '../../data');
-const DB_PATH = join(DATA_DIR, 'users.json');
+const { Pool } = pg;
 
-function ensureDB() {
-  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-  if (!existsSync(DB_PATH)) writeFileSync(DB_PATH, JSON.stringify({ users: [] }));
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+let schemaReady = null;
+function ensureSchema() {
+  if (!schemaReady) {
+    schemaReady = pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        plan TEXT NOT NULL DEFAULT 'free',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `);
+  }
+  return schemaReady;
 }
 
-function readDB() {
-  ensureDB();
-  return JSON.parse(readFileSync(DB_PATH, 'utf-8'));
+export async function findUserByEmail(email) {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase()]);
+  return rows[0] || null;
 }
 
-function writeDB(data) {
-  ensureDB();
-  writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+export async function findUserById(id) {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+  return rows[0] || null;
 }
 
-export function findUserByEmail(email) {
-  const { users } = readDB();
-  return users.find(u => u.email === email.toLowerCase()) || null;
-}
-
-export function findUserById(id) {
-  const { users } = readDB();
-  return users.find(u => u.id === id) || null;
-}
-
-export function createUser({ email, password, plan }) {
-  const db = readDB();
-  const user = {
-    id: String(Date.now()),
-    email: email.toLowerCase(),
-    password,
-    plan,
-    createdAt: new Date().toISOString(),
-  };
-  db.users.push(user);
-  writeDB(db);
-  return user;
+export async function createUser({ email, password, plan }) {
+  await ensureSchema();
+  const { rows } = await pool.query(
+    'INSERT INTO users (email, password, plan) VALUES ($1, $2, $3) RETURNING *',
+    [email.toLowerCase(), password, plan]
+  );
+  return rows[0];
 }
