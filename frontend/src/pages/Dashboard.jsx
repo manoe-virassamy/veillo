@@ -1,12 +1,30 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const planLabels = { free: 'Gratuit', pro: 'Pro', famille: 'Famille' };
 const planColors = { free: 'var(--ink-soft)', pro: 'var(--sage)', famille: 'var(--coral)' };
 
+function scoreColor(score) {
+  if (score >= 70) return '#2D4F3E';
+  if (score >= 40) return '#C97A3A';
+  return '#C9483A';
+}
+
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+  const [lastCheck, setLastCheck] = useState(undefined);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/check/latest`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setLastCheck(data))
+      .catch(() => setLastCheck(null));
+  }, [token]);
 
   function handleLogout() {
     logout();
@@ -48,9 +66,22 @@ export default function Dashboard() {
 
           <div className="dash-card">
             <div className="dash-card-label">Dernière vérification</div>
-            <div className="dash-email" style={{ fontSize: '15px', opacity: 0.5 }}>Aucune pour l'instant</div>
+            {!lastCheck ? (
+              <div className="dash-email" style={{ fontSize: '15px', opacity: 0.5 }}>
+                {lastCheck === undefined ? 'Chargement...' : "Aucune pour l'instant"}
+              </div>
+            ) : (
+              <>
+                <div className="dash-plan" style={{ color: scoreColor(lastCheck.score) }}>
+                  {lastCheck.score}/100
+                </div>
+                <p className="dash-note">
+                  {lastCheck.breach_count} fuite{lastCheck.breach_count > 1 ? 's' : ''} détectée{lastCheck.breach_count > 1 ? 's' : ''} — {new Date(lastCheck.created_at).toLocaleDateString('fr-FR')}
+                </p>
+              </>
+            )}
             <Link to="/" className="upgrade-btn" style={{ borderColor: 'var(--line)', color: 'var(--ink)' }}>
-              Vérifier mon email →
+              Vérifier {lastCheck ? 'à nouveau' : 'mon email'} →
             </Link>
           </div>
 

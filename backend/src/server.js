@@ -1,8 +1,10 @@
 import 'dotenv/config';
 import express from "express";
 import cors from "cors";
+import jwt from "jsonwebtoken";
 import { analyzeEmail } from "./analyzer.js";
-import authRoutes from "./routes/auth.js";
+import { saveCheck, getLatestCheck } from "./db.js";
+import authRoutes, { JWT_SECRET } from "./routes/auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,10 +21,41 @@ app.post("/api/check", async (req, res) => {
   }
   try {
     const result = await analyzeEmail(email);
+
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const { userId } = jwt.verify(authHeader.slice(7), JWT_SECRET);
+        await saveCheck({
+          userId,
+          email,
+          score: result.score,
+          label: result.label,
+          breachCount: result.breachCount,
+        });
+      } catch {
+        // token invalide ou expiré : on ignore, le check reste anonyme
+      }
+    }
+
     res.json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erreur lors de l'analyse" });
+  }
+});
+
+app.get("/api/check/latest", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Non authentifié" });
+  }
+  try {
+    const { userId } = jwt.verify(authHeader.slice(7), JWT_SECRET);
+    const check = await getLatestCheck(userId);
+    res.json(check);
+  } catch {
+    res.status(401).json({ error: "Token invalide" });
   }
 });
 

@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { findUserByEmail, findUserById, createUser } from '../db.js';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'veillo-dev-secret';
+export const JWT_SECRET = process.env.JWT_SECRET || 'veillo-dev-secret';
 
 router.post('/register', async (req, res) => {
   const { email, password, plan = 'free' } = req.body;

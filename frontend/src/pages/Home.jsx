@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [slow, setSlow] = useState(false);
@@ -28,7 +28,10 @@ export default function Home() {
     try {
       const res = await fetch(`${API_URL}/api/check`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
         body: JSON.stringify({ email }),
       });
       if (!res.ok) throw new Error("Erreur lors de la vérification");
