@@ -9,6 +9,7 @@ import Families from "./pages/Families";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
 import "./App.css";
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   );

@@ -8,6 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 export default function Home() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [slow, setSlow] = useState(false);
   const [error, setError] = useState(null);
   const [checkedEmail, setCheckedEmail] = useState(null);
 
@@ -21,6 +22,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     setCheckedEmail(email);
+    const slowTimer = setTimeout(() => setSlow(true), 4000);
     try {
       const res = await fetch(`${API_URL}/api/check`, {
         method: "POST",
@@ -36,6 +38,8 @@ export default function Home() {
     } catch {
       setError("Impossible de vérifier cet email pour le moment.");
     } finally {
+      clearTimeout(slowTimer);
+      setSlow(false);
       setLoading(false);
     }
   }
@@ -53,6 +57,7 @@ export default function Home() {
             et te dit quoi faire — sans jargon, sans panique.
           </p>
           <CheckForm onCheck={handleCheck} loading={loading} />
+          {loading && slow && <p className="form-note">Premier chargement un peu long, le serveur se réveille (jusqu'à 30 secondes)...</p>}
           {error && <p className="error-note">{error}</p>}
         </div>
         <ShieldVisual score={result?.score ?? null} loading={loading} />

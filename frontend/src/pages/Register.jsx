@@ -10,6 +10,7 @@ export default function Register() {
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [slow, setSlow] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -19,6 +20,7 @@ export default function Register() {
     if (password !== confirm) { setError('Les mots de passe ne correspondent pas'); return; }
     setLoading(true);
     setError(null);
+    const slowTimer = setTimeout(() => setSlow(true), 4000);
     try {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
@@ -32,6 +34,8 @@ export default function Register() {
     } catch {
       setError('Une erreur est survenue, réessaie.');
     } finally {
+      clearTimeout(slowTimer);
+      setSlow(false);
       setLoading(false);
     }
   }
@@ -56,6 +60,7 @@ export default function Register() {
               <label>Confirmer le mot de passe</label>
               <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required placeholder="Répète ton mot de passe" />
             </div>
+            {loading && slow && <p className="form-note">Premier chargement un peu long, le serveur se réveille (jusqu'à 30 secondes)...</p>}
             {error && <p className="error-note">{error}</p>}
             <button type="submit" className="auth-btn" disabled={loading}>
               {loading ? 'Création...' : 'Créer mon compte →'}
