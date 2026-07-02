@@ -50,8 +50,44 @@ function InviteForm({ token }) {
   );
 }
 
+function PlanSwitcher({ user, token, onPlanChange }) {
+  const [updating, setUpdating] = useState(false);
+
+  async function handleChange(plan) {
+    if (plan === user.plan || updating) return;
+    setUpdating(true);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/plan`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan }),
+      });
+      if (res.ok) onPlanChange(await res.json());
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  return (
+    <div className="admin-plan-switcher">
+      <span>Mode démo, voir le rendu du plan :</span>
+      {['free', 'pro', 'famille'].map(p => (
+        <button
+          key={p}
+          type="button"
+          className={`admin-plan-btn ${user.plan === p ? 'active' : ''}`}
+          onClick={() => handleChange(p)}
+          disabled={updating}
+        >
+          {planLabels[p]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function Dashboard() {
-  const { user, token, logout } = useAuth();
+  const { user, token, login, logout } = useAuth();
   const navigate = useNavigate();
   const [lastCheck, setLastCheck] = useState(undefined);
 
@@ -79,6 +115,10 @@ export default function Dashboard() {
     navigate('/');
   }
 
+  function handlePlanChange(updatedUser) {
+    login(token, updatedUser);
+  }
+
   return (
     <>
       <section className="dashboard">
@@ -89,6 +129,8 @@ export default function Dashboard() {
           </div>
           <button className="logout-btn" onClick={handleLogout}>Se déconnecter</button>
         </div>
+
+        {user.isAdmin && <PlanSwitcher user={user} token={token} onPlanChange={handlePlanChange} />}
 
         <div className="dashboard-grid">
           <div className="dash-card">

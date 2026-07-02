@@ -105,3 +105,12 @@ export async function resetPassword(userId, hashedPassword) {
     [hashedPassword, userId]
   );
 }
+
+export async function updateUserPlan(userId, plan) {
+  await ensureSchema();
+  const { rows } = await pool.query(
+    'UPDATE users SET plan = $1 WHERE id = $2 RETURNING *',
+    [plan, userId]
+  );
+  return rows[0];
+}

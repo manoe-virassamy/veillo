@@ -10,12 +10,22 @@ import {
   setResetToken,
   findUserByResetToken,
   resetPassword,
+  updateUserPlan,
 } from '../db.js';
 import { sendResetEmail, sendInviteEmail } from '../email.js';
 
 const router = Router();
 export const JWT_SECRET = process.env.JWT_SECRET || 'veillo-dev-secret';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').toLowerCase();
+
+function isAdmin(email) {
+  return !!ADMIN_EMAIL && email.toLowerCase() === ADMIN_EMAIL;
+}
+
+function toPublicUser(user) {
+  return { id: user.id, email: user.email, plan: user.plan, isAdmin: isAdmin(user.email) };
+}
 
 router.post('/register', async (req, res) => {
   const { email, password, plan = 'free' } = req.body;
@@ -34,7 +44,7 @@ router.post('/register', async (req, res) => {
   const user = await createUser({ email, password: hashed, plan });
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
 
-  res.status(201).json({ token, user: { id: user.id, email: user.email, plan: user.plan } });
+  res.status(201).json({ token, user: toPublicUser(user) });
 });
 
 router.post('/login', async (req, res) => {
@@ -50,7 +60,7 @@ router.post('/login', async (req, res) => {
   }
 
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
-  res.json({ token, user: { id: user.id, email: user.email, plan: user.plan } });
+  res.json({ token, user: toPublicUser(user) });
 });
 
 router.get('/me', async (req, res) => {
@@ -62,10 +72,34 @@ router.get('/me', async (req, res) => {
     const { userId } = jwt.verify(authHeader.slice(7), JWT_SECRET);
     const user = await findUserById(userId);
     if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
-    res.json({ id: user.id, email: user.email, plan: user.plan });
+    res.json(toPublicUser(user));
   } catch {
     res.status(401).json({ error: 'Token invalide' });
   }
+});
+
+router.patch('/plan', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Non authentifié' });
+  }
+  const { plan } = req.body;
+  if (!['free', 'pro', 'famille'].includes(plan)) {
+    return res.status(400).json({ error: 'Plan invalide' });
+  }
+
+  let userId, user;
+  try {
+    ({ userId } = jwt.verify(authHeader.slice(7), JWT_SECRET));
+    user = await findUserById(userId);
+  } catch {
+    return res.status(401).json({ error: 'Token invalide' });
+  }
+  if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+  if (!isAdmin(user.email)) return res.status(403).json({ error: 'Non autorisé' });
+
+  const updated = await updateUserPlan(userId, plan);
+  res.json(toPublicUser(updated));
 });
 
 router.delete('/account', async (req, res) => {
