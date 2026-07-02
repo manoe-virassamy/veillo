@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function CheckForm({ onCheck, loading, defaultEmail }) {
+export default function CheckForm({ onCheck, loading, defaultEmail, loggedIn }) {
   const [email, setEmail] = useState(defaultEmail || "");
 
   useEffect(() => {
@@ -27,7 +27,11 @@ export default function CheckForm({ onCheck, loading, defaultEmail }) {
           {loading ? "Vérification..." : "Vérifier"}
         </button>
       </form>
-      <p className="form-note">Aucune donnée stockée. Vérification anonyme et instantanée.</p>
+      <p className="form-note">
+        {loggedIn
+          ? "Résultat enregistré sur ton compte pour suivre ton score dans le temps."
+          : "Aucune donnée stockée. Vérification anonyme et instantanée."}
+      </p>
     </>
   );
 }

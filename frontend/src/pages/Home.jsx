@@ -61,7 +61,7 @@ export default function Home() {
             Veillo vérifie si tes données ont fuité, t'explique simplement les risques,
             et te dit quoi faire — sans jargon, sans panique.
           </p>
-          <CheckForm onCheck={handleCheck} loading={loading} defaultEmail={user?.email} />
+          <CheckForm onCheck={handleCheck} loading={loading} defaultEmail={user?.email} loggedIn={!!user} />
           {loading && slow && <p className="form-note">Premier chargement un peu long, le serveur se réveille (jusqu'à 30 secondes)...</p>}
           {error && <p className="error-note">{error}</p>}
         </div>

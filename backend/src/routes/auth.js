@@ -132,7 +132,7 @@ router.post('/invite', async (req, res) => {
   if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
 
   try {
-    await sendInviteEmail(email, user.email, `${FRONTEND_URL}/inscription?plan=famille`);
+    await sendInviteEmail(email, user.email, `${FRONTEND_URL}/inscription`);
     res.json({ ok: true });
   } catch (err) {
     console.error("Erreur d'envoi de l'email d'invitation:", err);
