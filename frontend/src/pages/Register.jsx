@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const VALID_PLANS = ['free', 'pro', 'famille'];
 
 export default function Register() {
+  const [searchParams] = useSearchParams();
+  const plan = VALID_PLANS.includes(searchParams.get('plan')) ? searchParams.get('plan') : 'free';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -25,7 +28,7 @@ export default function Register() {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, plan: 'free' }),
+        body: JSON.stringify({ email, password, plan }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error); return; }
@@ -46,6 +49,7 @@ export default function Register() {
         <div className="auth-box">
           <div className="eyebrow">Créer un compte</div>
           <h1 className="serif">Rejoins Veillo</h1>
+          {plan !== 'free' && <p className="form-note">Plan sélectionné : {plan === 'pro' ? 'Pro' : 'Famille'}</p>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="field">
