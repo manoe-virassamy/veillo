@@ -573,11 +573,12 @@ footer {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s, transform 0.15s;
+    z-index: 30;
   }
   nav .links.open {
     transform: translateY(0);
     opacity: 1;
     pointer-events: auto;
   }
-  nav { position: relative; }
+  nav { position: relative; z-index: 20; }
 }
