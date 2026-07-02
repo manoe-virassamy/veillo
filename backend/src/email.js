@@ -1,12 +1,12 @@
 import sgMail from '@sendgrid/mail';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL;
+const FROM = { email: process.env.SENDGRID_FROM_EMAIL, name: 'Veillo' };
 
 export async function sendResetEmail(to, resetUrl) {
   await sgMail.send({
     to,
-    from: FROM_EMAIL,
+    from: FROM,
     subject: 'Réinitialise ton mot de passe Veillo',
     html: `
       <p>Tu as demandé à réinitialiser ton mot de passe Veillo.</p>
@@ -19,7 +19,7 @@ export async function sendResetEmail(to, resetUrl) {
 export async function sendInviteEmail(to, fromEmail, inviteUrl) {
   await sgMail.send({
     to,
-    from: FROM_EMAIL,
+    from: FROM,
     subject: `${fromEmail} t'invite à rejoindre Veillo`,
     html: `
       <p>${fromEmail} utilise Veillo pour surveiller ses données personnelles et t'invite à faire pareil.</p>
