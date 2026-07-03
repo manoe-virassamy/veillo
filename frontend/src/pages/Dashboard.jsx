@@ -86,6 +86,63 @@ function PlanSwitcher({ user, token, onPlanChange }) {
   );
 }
 
+function ChangePasswordForm({ token }) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [status, setStatus] = useState(null);
+  const [error, setError] = useState(null);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (newPassword.length < 8) { setError('Mot de passe trop court (8 caractères minimum)'); return; }
+    if (newPassword !== confirm) { setError('Les mots de passe ne correspondent pas'); return; }
+    setStatus('sending');
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/change-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error); setStatus(null); return; }
+      setStatus('done');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirm('');
+    } catch {
+      setError('Une erreur est survenue, réessaie.');
+      setStatus(null);
+    }
+  }
+
+  return (
+    <details className="account-section">
+      <summary>Changer mon mot de passe</summary>
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <div className="field">
+          <label>Mot de passe actuel</label>
+          <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required />
+        </div>
+        <div className="field">
+          <label>Nouveau mot de passe</label>
+          <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required placeholder="8 caractères minimum" />
+        </div>
+        <div className="field">
+          <label>Confirmer le nouveau mot de passe</label>
+          <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required />
+        </div>
+        {error && <p className="error-note">{error}</p>}
+        {status === 'done' && <p className="form-note">Mot de passe mis à jour.</p>}
+        <button type="submit" className="auth-btn" disabled={status === 'sending'}>
+          {status === 'sending' ? 'Mise à jour...' : 'Mettre à jour →'}
+        </button>
+      </form>
+    </details>
+  );
+}
+
 export default function Dashboard() {
   const { user, token, login, logout } = useAuth();
   const navigate = useNavigate();
@@ -184,6 +241,7 @@ export default function Dashboard() {
           )}
         </div>
 
+        <ChangePasswordForm token={token} />
         <button className="danger-link" onClick={handleDeleteAccount}>Supprimer mon compte</button>
       </section>
 

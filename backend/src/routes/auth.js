@@ -108,6 +108,37 @@ router.patch('/plan', async (req, res) => {
   res.json(toPublicUser(updated));
 });
 
+router.post('/change-password', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Non authentifié' });
+  }
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Champs requis' });
+  }
+  if (newPassword.length < 8) {
+    return res.status(400).json({ error: 'Mot de passe trop court (8 caractères minimum)' });
+  }
+
+  let userId, user;
+  try {
+    ({ userId } = jwt.verify(authHeader.slice(7), JWT_SECRET));
+    user = await findUserById(userId);
+  } catch {
+    return res.status(401).json({ error: 'Token invalide' });
+  }
+  if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+
+  if (!(await bcrypt.compare(currentPassword, user.password))) {
+    return res.status(401).json({ error: 'Mot de passe actuel incorrect' });
+  }
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await resetPassword(user.id, hashed);
+  res.json({ ok: true });
+});
+
 router.delete('/account', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {

@@ -364,9 +364,23 @@ footer {
   transition: border-color 0.2s, color 0.2s;
 }
 .logout-btn:hover { border-color: #C9483A; color: #C9483A; }
+.account-section {
+  max-width: 400px;
+  margin: 40px auto 0;
+}
+.account-section summary {
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: center;
+  list-style: none;
+}
+.account-section summary::-webkit-details-marker { display: none; }
+.account-section .auth-form { margin-top: 16px; }
 .danger-link {
   display: block;
-  margin: 40px auto 0;
+  margin: 24px auto 0;
   background: none;
   border: none;
   color: var(--ink-soft);
