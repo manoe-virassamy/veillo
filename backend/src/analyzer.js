@@ -1,32 +1,72 @@
-// Ce module simule pour l'instant ce que renverra l'API HaveIBeenPwned.
-// Quand on branchera la vraie clé API, seule la fonction fetchBreaches()
-// changera — tout le reste (scoring, recommandations) reste identique.
+import { getCachedBreaches, setCachedBreaches } from "./db.js";
 
-// --- Simulation de données de fuites (à remplacer par un vrai appel API) ---
-async function fetchBreaches(email) {
-  // Simule un délai réseau réaliste
+const HIBP_API_KEY = process.env.HIBP_API_KEY;
+const HIBP_URL = "https://haveibeenpwned.com/api/v3/breachedaccount";
+
+// L'abonnement HIBP le moins cher autorise 10 requêtes/minute — on reste
+// prudemment en dessous en espaçant les appels réels d'au moins 7 secondes,
+// et un cache (24h) évite de rappeler HIBP pour un email déjà vérifié récemment.
+const MIN_INTERVAL_MS = 7000;
+let hibpQueue = Promise.resolve();
+let lastHibpCall = 0;
+
+function throttled(fn) {
+  hibpQueue = hibpQueue.then(async () => {
+    const wait = Math.max(0, lastHibpCall + MIN_INTERVAL_MS - Date.now());
+    if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+    lastHibpCall = Date.now();
+    return fn();
+  });
+  return hibpQueue;
+}
+
+function severityFor(dataClasses) {
+  const lower = dataClasses.map((d) => d.toLowerCase());
+  const sensitiveKeywords = ["password", "credit card", "bank account", "social security", "financ"];
+  if (lower.some((d) => sensitiveKeywords.some((k) => d.includes(k)))) return "high";
+  if (lower.length > 2) return "medium";
+  return "low";
+}
+
+async function fetchFromHibp(email) {
+  const res = await fetch(`${HIBP_URL}/${encodeURIComponent(email)}?truncateResponse=false`, {
+    headers: {
+      "hibp-api-key": HIBP_API_KEY,
+      "User-Agent": "Veillo-App",
+      "Accept": "application/vnd.haveibeenpwned.v3+json",
+    },
+  });
+
+  if (res.status === 404) return [];
+  if (!res.ok) throw new Error(`Erreur HaveIBeenPwned (${res.status})`);
+
+  const data = await res.json();
+  return data.map((breach) => ({
+    name: breach.Title || breach.Name,
+    year: new Date(breach.BreachDate).getFullYear(),
+    exposedData: breach.DataClasses.map((d) => d.toLowerCase()),
+    severity: severityFor(breach.DataClasses),
+  }));
+}
+
+// --- Simulation utilisée en local quand HIBP_API_KEY n'est pas configurée ---
+async function fetchMockBreaches() {
   await new Promise((resolve) => setTimeout(resolve, 600));
+  return [
+    { name: "LinkedIn", year: 2021, exposedData: ["email", "password"], severity: "high" },
+    { name: "Adobe", year: 2019, exposedData: ["email"], severity: "medium" },
+  ];
+}
 
-  // Données fictives mais structurées comme la vraie API HIBP
-  const mockDatabase = {
-    default: [
-      {
-        name: "LinkedIn",
-        year: 2021,
-        exposedData: ["email", "password"],
-        severity: "high",
-      },
-      {
-        name: "Adobe",
-        year: 2019,
-        exposedData: ["email"],
-        severity: "medium",
-      },
-    ],
-  };
+async function fetchBreaches(email) {
+  if (!HIBP_API_KEY) return fetchMockBreaches();
 
-  // Pour la démo, tout email renvoie le même jeu de données mock
-  return mockDatabase.default;
+  const cached = await getCachedBreaches(email);
+  if (cached) return cached;
+
+  const breaches = await throttled(() => fetchFromHibp(email));
+  await setCachedBreaches(email, breaches);
+  return breaches;
 }
 
 // --- Calcul du score de vulnérabilité à partir des fuites trouvées ---
@@ -38,7 +78,7 @@ function computeScore(breaches) {
     if (breach.severity === "medium") score -= 10;
     if (breach.severity === "low") score -= 5;
 
-    if (breach.exposedData.includes("password")) score -= 8;
+    if (breach.exposedData.some((d) => d.includes("password"))) score -= 8;
   }
 
   score = Math.max(0, Math.min(100, score));
@@ -54,7 +94,7 @@ function computeScore(breaches) {
 // --- Génération des recommandations actionnables ---
 function buildFindings(breaches) {
   const findings = breaches.map((breach) => {
-    if (breach.exposedData.includes("password")) {
+    if (breach.exposedData.some((d) => d.includes("password"))) {
       return {
         severity: "high",
         icon: "🔓",

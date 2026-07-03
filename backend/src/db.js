@@ -33,6 +33,13 @@ function ensureSchema() {
       `);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ`);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS hibp_cache (
+          email TEXT PRIMARY KEY,
+          breaches JSONB NOT NULL,
+          fetched_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `);
     })();
   }
   return schemaReady;
@@ -113,4 +120,22 @@ export async function updateUserPlan(userId, plan) {
     [plan, userId]
   );
   return rows[0];
+}
+
+export async function getCachedBreaches(email) {
+  await ensureSchema();
+  const { rows } = await pool.query(
+    "SELECT breaches FROM hibp_cache WHERE email = $1 AND fetched_at > now() - interval '24 hours'",
+    [email.toLowerCase()]
+  );
+  return rows[0] ? rows[0].breaches : null;
+}
+
+export async function setCachedBreaches(email, breaches) {
+  await ensureSchema();
+  await pool.query(
+    `INSERT INTO hibp_cache (email, breaches, fetched_at) VALUES ($1, $2, now())
+     ON CONFLICT (email) DO UPDATE SET breaches = $2, fetched_at = now()`,
+    [email.toLowerCase(), JSON.stringify(breaches)]
+  );
 }
