@@ -24,14 +24,20 @@ function isAdmin(email) {
 }
 
 function toPublicUser(user) {
-  return { id: user.id, email: user.email, plan: user.plan, isAdmin: isAdmin(user.email) };
+  return {
+    id: user.id,
+    email: user.email,
+    plan: user.plan,
+    firstName: user.first_name || user.email.split('@')[0],
+    isAdmin: isAdmin(user.email),
+  };
 }
 
 router.post('/register', async (req, res) => {
-  const { email, password, plan = 'free' } = req.body;
+  const { email, password, plan = 'free', firstName } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email et mot de passe requis' });
+  if (!email || !password || !firstName) {
+    return res.status(400).json({ error: 'Prénom, email et mot de passe requis' });
   }
   if (password.length < 8) {
     return res.status(400).json({ error: 'Mot de passe trop court (8 caractères minimum)' });
@@ -41,7 +47,7 @@ router.post('/register', async (req, res) => {
   }
 
   const hashed = await bcrypt.hash(password, 10);
-  const user = await createUser({ email, password: hashed, plan });
+  const user = await createUser({ email, password: hashed, plan, firstName: firstName.trim() });
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
 
   res.status(201).json({ token, user: toPublicUser(user) });

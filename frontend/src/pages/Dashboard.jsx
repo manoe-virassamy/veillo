@@ -125,7 +125,7 @@ export default function Dashboard() {
         <div className="dashboard-header">
           <div>
             <div className="eyebrow">Tableau de bord</div>
-            <h1 className="serif">Bonjour, {user.email.split('@')[0]}</h1>
+            <h1 className="serif">Bonjour, {user.firstName}</h1>
           </div>
           <button className="logout-btn" onClick={handleLogout}>Se déconnecter</button>
         </div>

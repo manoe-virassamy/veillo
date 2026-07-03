@@ -8,6 +8,7 @@ const VALID_PLANS = ['free', 'pro', 'famille'];
 export default function Register() {
   const [searchParams] = useSearchParams();
   const plan = VALID_PLANS.includes(searchParams.get('plan')) ? searchParams.get('plan') : 'free';
+  const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -28,7 +29,7 @@ export default function Register() {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, plan }),
+        body: JSON.stringify({ email, password, plan, firstName }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error); return; }
@@ -52,6 +53,10 @@ export default function Register() {
           {plan !== 'free' && <p className="form-note">Plan sélectionné : {plan === 'pro' ? 'Pro' : 'Famille'}</p>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
+            <div className="field">
+              <label>Prénom</label>
+              <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} required placeholder="Ton prénom" />
+            </div>
             <div className="field">
               <label>Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="ton@email.com" />

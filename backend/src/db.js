@@ -33,6 +33,7 @@ function ensureSchema() {
       `);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT`);
       await pool.query(`
         CREATE TABLE IF NOT EXISTS hibp_cache (
           email TEXT PRIMARY KEY,
@@ -57,11 +58,11 @@ export async function findUserById(id) {
   return rows[0] || null;
 }
 
-export async function createUser({ email, password, plan }) {
+export async function createUser({ email, password, plan, firstName }) {
   await ensureSchema();
   const { rows } = await pool.query(
-    'INSERT INTO users (email, password, plan) VALUES ($1, $2, $3) RETURNING *',
-    [email.toLowerCase(), password, plan]
+    'INSERT INTO users (email, password, plan, first_name) VALUES ($1, $2, $3, $4) RETURNING *',
+    [email.toLowerCase(), password, plan, firstName]
   );
   return rows[0];
 }
