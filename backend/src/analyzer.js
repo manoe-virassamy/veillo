@@ -101,6 +101,11 @@ function buildFindings(breaches) {
         title: `Mot de passe exposé — fuite ${breach.name} ${breach.year}`,
         description: `Un mot de passe associé à ce compte a été retrouvé dans la fuite ${breach.name}. S'il est encore utilisé ailleurs, change-le en priorité.`,
         action: "Voir comment le changer",
+        tips: [
+          "Change ce mot de passe immédiatement, et partout où tu le réutilises ailleurs",
+          "Utilise un gestionnaire de mots de passe (Bitwarden, 1Password...) pour générer un mot de passe unique et fort par site",
+          "Active la double authentification sur ce compte si ce n'est pas déjà fait",
+        ],
       };
     }
     return {
@@ -109,6 +114,11 @@ function buildFindings(breaches) {
       title: `Email présent — fuite ${breach.name} ${breach.year}`,
       description: `Ton adresse apparaît dans cette fuite. Risque faible mais reste vigilant face aux emails suspects.`,
       action: "Comprendre le risque",
+      tips: [
+        "Une adresse email seule sert surtout au phishing ciblé — les attaquants savent qu'elle est active",
+        "Méfie-toi des emails inattendus qui te demandent de cliquer sur un lien ou de te reconnecter",
+        "Ne réutilise jamais le même mot de passe sur plusieurs sites, même si celui-ci n'a pas fuité ici",
+      ],
     };
   });
 
@@ -120,6 +130,11 @@ function buildFindings(breaches) {
     description:
       "Active la double authentification partout où c'est possible — la mesure la plus efficace contre le piratage de compte.",
     action: "Activer la 2FA",
+    tips: [
+      "Active la 2FA sur tes comptes principaux : email, banque, réseaux sociaux",
+      "Préfère une app d'authentification (Google Authenticator, Authy) aux SMS, plus faciles à intercepter",
+      "Conserve tes codes de secours dans un endroit sûr, séparé de ton mot de passe",
+    ],
   });
 
   return findings;

@@ -228,15 +228,22 @@ h1 em {
 .finding.low .finding-icon { background: #E9F1EC; }
 .finding-content h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
 .finding-content p { font-size: 14px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 10px; }
-.finding-action {
+.finding-action summary {
   font-size: 13px;
   font-weight: 600;
   color: var(--sage);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  cursor: pointer;
+  list-style: none;
 }
+.finding-action summary::-webkit-details-marker { display: none; }
+.finding-tips {
+  margin-top: 10px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.finding-tips li { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
 
 /* FEATURES */
 .features {
