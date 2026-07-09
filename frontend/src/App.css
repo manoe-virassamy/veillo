@@ -414,6 +414,31 @@ footer {
   outline: none;
 }
 .invite-form input:focus { border-color: var(--sage); }
+.verify-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #8A5A1E;
+  background: #FDF3E3;
+  border: 1px solid #E8CFA0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.verify-banner button {
+  background: none;
+  border: 1.5px solid #E8CFA0;
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8A5A1E;
+  cursor: pointer;
+}
+.verify-banner-sent { font-weight: 600; }
 .admin-plan-switcher {
   display: flex;
   align-items: center;

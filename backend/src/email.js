@@ -55,6 +55,42 @@ export async function sendResetEmail(to, resetUrl) {
   });
 }
 
+export async function sendWelcomeEmail(to, firstName) {
+  await sgMail.send({
+    to,
+    from: FROM,
+    subject: 'Bienvenue sur Veillo',
+    html: renderEmail({
+      eyebrow: 'Bienvenue',
+      title: `Bienvenue sur Veillo, ${firstName}`,
+      bodyHtml: `
+        <p style="margin:0 0 12px;">Ton compte est créé. Tu peux dès maintenant vérifier si tes emails sont apparus dans des fuites de données connues, et suivre ton score de vulnérabilité.</p>
+        <p style="margin:0;">Pense à confirmer ton adresse email — tu as reçu un second email pour ça juste après celui-ci.</p>
+      `,
+      ctaText: 'Aller sur mon tableau de bord',
+      ctaUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard`,
+    }),
+  });
+}
+
+export async function sendVerificationEmail(to, verifyUrl) {
+  await sgMail.send({
+    to,
+    from: FROM,
+    subject: 'Confirme ton adresse email Veillo',
+    html: renderEmail({
+      eyebrow: 'Confirmation d\'email',
+      title: 'Confirme ton adresse email',
+      bodyHtml: `
+        <p style="margin:0 0 12px;">Pour activer pleinement ton compte Veillo, confirme que cette adresse t'appartient bien.</p>
+        <p style="margin:0;">Ce lien expire dans 24 heures.</p>
+      `,
+      ctaText: 'Confirmer mon email',
+      ctaUrl: verifyUrl,
+    }),
+  });
+}
+
 export async function sendInviteEmail(to, fromEmail, inviteUrl) {
   await sgMail.send({
     to,

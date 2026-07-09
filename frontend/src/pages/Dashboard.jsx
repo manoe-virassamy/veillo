@@ -144,6 +144,36 @@ function ChangePasswordForm({ token }) {
   );
 }
 
+function VerifyBanner({ token }) {
+  const [status, setStatus] = useState(null);
+
+  async function handleResend() {
+    setStatus('sending');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setStatus(res.ok ? 'sent' : 'error');
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  return (
+    <div className="verify-banner">
+      <span>Confirme ton adresse email pour activer pleinement ton compte.</span>
+      {status === 'sent' ? (
+        <span className="verify-banner-sent">Email renvoyé !</span>
+      ) : (
+        <button type="button" onClick={handleResend} disabled={status === 'sending'}>
+          {status === 'sending' ? 'Envoi...' : 'Renvoyer l\'email'}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user, token, login, logout } = useAuth();
   const navigate = useNavigate();
@@ -197,6 +227,7 @@ export default function Dashboard() {
           <button className="logout-btn" onClick={handleLogout}>Se déconnecter</button>
         </div>
 
+        {!user.emailVerified && <VerifyBanner token={token} />}
         {user.isAdmin && <PlanSwitcher user={user} token={token} onPlanChange={handlePlanChange} />}
 
         <div className="dashboard-grid">

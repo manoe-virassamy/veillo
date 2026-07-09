@@ -11,8 +11,11 @@ import {
   findUserByResetToken,
   resetPassword,
   updateUserPlan,
+  setVerifyToken,
+  findUserByVerifyToken,
+  markEmailVerified,
 } from '../db.js';
-import { sendResetEmail, sendInviteEmail } from '../email.js';
+import { sendResetEmail, sendInviteEmail, sendWelcomeEmail, sendVerificationEmail } from '../email.js';
 
 const router = Router();
 export const JWT_SECRET = process.env.JWT_SECRET || 'veillo-dev-secret';
@@ -30,7 +33,15 @@ function toPublicUser(user) {
     plan: user.plan,
     firstName: user.first_name || user.email.split('@')[0],
     isAdmin: isAdmin(user.email),
+    emailVerified: user.email_verified,
   };
+}
+
+async function sendVerification(user) {
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  await setVerifyToken(user.id, token, expiresAt);
+  await sendVerificationEmail(user.email, `${FRONTEND_URL}/verifier-email?token=${token}`);
 }
 
 router.post('/register', async (req, res) => {
@@ -50,7 +61,49 @@ router.post('/register', async (req, res) => {
   const user = await createUser({ email, password: hashed, plan, firstName: firstName.trim() });
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
 
+  try {
+    await sendWelcomeEmail(user.email, user.first_name);
+    await sendVerification(user);
+  } catch (err) {
+    console.error("Erreur d'envoi des emails d'inscription:", err);
+  }
+
   res.status(201).json({ token, user: toPublicUser(user) });
+});
+
+router.post('/verify-email', async (req, res) => {
+  const { token } = req.body;
+  if (!token) return res.status(400).json({ error: 'Token requis' });
+
+  const user = await findUserByVerifyToken(token);
+  if (!user) return res.status(400).json({ error: 'Lien invalide ou expiré' });
+
+  await markEmailVerified(user.id);
+  res.json({ ok: true });
+});
+
+router.post('/resend-verification', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Non authentifié' });
+  }
+  let userId, user;
+  try {
+    ({ userId } = jwt.verify(authHeader.slice(7), JWT_SECRET));
+    user = await findUserById(userId);
+  } catch {
+    return res.status(401).json({ error: 'Token invalide' });
+  }
+  if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+  if (user.email_verified) return res.status(400).json({ error: 'Email déjà confirmé' });
+
+  try {
+    await sendVerification(user);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Erreur d'envoi de l'email de confirmation:", err);
+    res.status(500).json({ error: "Erreur lors de l'envoi de l'email" });
+  }
 });
 
 router.post('/login', async (req, res) => {

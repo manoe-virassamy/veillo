@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import MentionsLegales from "./pages/MentionsLegales";
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/connexion" element={<Login />} />
         <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
         <Route path="/reinitialiser" element={<ResetPassword />} />
+        <Route path="/verifier-email" element={<VerifyEmail />} />
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />

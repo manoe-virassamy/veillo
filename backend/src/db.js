@@ -37,6 +37,9 @@ function ensureSchema() {
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT`);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT`);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS beta BOOLEAN NOT NULL DEFAULT false`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT false`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS verify_token TEXT`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS verify_token_expires TIMESTAMPTZ`);
       await pool.query(`
         CREATE TABLE IF NOT EXISTS hibp_cache (
           email TEXT PRIMARY KEY,
@@ -114,6 +117,31 @@ export async function resetPassword(userId, hashedPassword) {
   await pool.query(
     'UPDATE users SET password = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2',
     [hashedPassword, userId]
+  );
+}
+
+export async function setVerifyToken(userId, token, expiresAt) {
+  await ensureSchema();
+  await pool.query(
+    'UPDATE users SET verify_token = $1, verify_token_expires = $2 WHERE id = $3',
+    [token, expiresAt, userId]
+  );
+}
+
+export async function findUserByVerifyToken(token) {
+  await ensureSchema();
+  const { rows } = await pool.query(
+    'SELECT * FROM users WHERE verify_token = $1 AND verify_token_expires > now()',
+    [token]
+  );
+  return rows[0] || null;
+}
+
+export async function markEmailVerified(userId) {
+  await ensureSchema();
+  await pool.query(
+    'UPDATE users SET email_verified = true, verify_token = NULL, verify_token_expires = NULL WHERE id = $1',
+    [userId]
   );
 }
 
