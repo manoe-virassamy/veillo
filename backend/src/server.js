@@ -5,14 +5,19 @@ import jwt from "jsonwebtoken";
 import { analyzeEmail } from "./analyzer.js";
 import { saveCheck, getLatestCheck } from "./db.js";
 import authRoutes, { JWT_SECRET } from "./routes/auth.js";
+import stripeRoutes, { webhookRouter } from "./routes/stripe.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
+// Le webhook Stripe a besoin du corps brut pour vérifier la signature,
+// donc il doit être monté avant express.json() qui parserait déjà le body.
+app.use("/api/stripe", webhookRouter);
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 app.post("/api/check", async (req, res) => {
   const { email } = req.body;

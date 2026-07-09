@@ -544,16 +544,21 @@ footer {
 .pricing-highlight .check { color: rgba(255,255,255,0.7); }
 .plan-cta {
   display: block;
+  width: 100%;
   text-align: center;
   padding: 14px 24px;
   border-radius: 100px;
   font-weight: 600;
   font-size: 14px;
+  font-family: 'Inter', sans-serif;
   text-decoration: none;
   border: 1.5px solid var(--line);
+  background: none;
   color: var(--ink);
+  cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
 }
+.plan-cta:disabled { opacity: 0.6; cursor: default; }
 .plan-cta:hover { border-color: var(--sage); color: var(--sage); }
 .plan-cta-highlight {
   background: white;

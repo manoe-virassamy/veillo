@@ -1,4 +1,8 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 const plans = [
   {
@@ -13,6 +17,7 @@ const plans = [
     ],
     cta: "Commencer gratuitement",
     ctaLink: "/",
+    checkoutPlan: null,
     highlight: false,
   },
   {
@@ -28,7 +33,7 @@ const plans = [
       "Jusqu'à 3 emails surveillés",
     ],
     cta: "Essayer 30 jours gratuits",
-    ctaLink: "/",
+    checkoutPlan: "pro",
     highlight: true,
   },
   {
@@ -44,12 +49,32 @@ const plans = [
       "Accompagnement simplifié pour les moins technophiles",
     ],
     cta: "Protéger ma famille",
-    ctaLink: "/familles",
+    checkoutPlan: "famille",
     highlight: false,
   },
 ];
 
 export default function Pricing() {
+  const { user, token } = useAuth();
+  const navigate = useNavigate();
+  const [loadingPlan, setLoadingPlan] = useState(null);
+
+  async function handleUpgrade(checkoutPlan) {
+    if (!user) { navigate("/connexion"); return; }
+    setLoadingPlan(checkoutPlan);
+    try {
+      const res = await fetch(`${API_URL}/api/stripe/create-checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan: checkoutPlan }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } finally {
+      setLoadingPlan(null);
+    }
+  }
+
   return (
     <>
       <section className="page-hero">
@@ -76,9 +101,20 @@ export default function Pricing() {
                 </li>
               ))}
             </ul>
-            <Link to={plan.ctaLink} className={`plan-cta ${plan.highlight ? "plan-cta-highlight" : ""}`}>
-              {plan.cta}
-            </Link>
+            {plan.checkoutPlan ? (
+              <button
+                type="button"
+                className={`plan-cta ${plan.highlight ? "plan-cta-highlight" : ""}`}
+                onClick={() => handleUpgrade(plan.checkoutPlan)}
+                disabled={loadingPlan === plan.checkoutPlan}
+              >
+                {loadingPlan === plan.checkoutPlan ? "Redirection..." : plan.cta}
+              </button>
+            ) : (
+              <Link to={plan.ctaLink} className={`plan-cta ${plan.highlight ? "plan-cta-highlight" : ""}`}>
+                {plan.cta}
+              </Link>
+            )}
           </div>
         ))}
       </section>

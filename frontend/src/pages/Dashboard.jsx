@@ -176,6 +176,15 @@ export default function Dashboard() {
     login(token, updatedUser);
   }
 
+  async function handleManageSubscription() {
+    const res = await fetch(`${API_URL}/api/stripe/create-portal-session`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  }
+
   return (
     <>
       <section className="dashboard">
@@ -195,8 +204,17 @@ export default function Dashboard() {
             <div className="dash-plan" style={{ color: planColors[user.plan] }}>
               {planLabels[user.plan]}
             </div>
-            {user.plan === 'free' && (
+            {user.plan === 'free' ? (
               <Link to="/tarifs" className="upgrade-btn">Passer au Pro →</Link>
+            ) : (
+              <button
+                type="button"
+                className="upgrade-btn"
+                style={{ borderColor: 'var(--line)', color: 'var(--ink)' }}
+                onClick={handleManageSubscription}
+              >
+                Gérer mon abonnement →
+              </button>
             )}
           </div>
 

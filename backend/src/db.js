@@ -34,6 +34,8 @@ function ensureSchema() {
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ`);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT`);
       await pool.query(`
         CREATE TABLE IF NOT EXISTS hibp_cache (
           email TEXT PRIMARY KEY,
@@ -121,6 +123,20 @@ export async function updateUserPlan(userId, plan) {
     [plan, userId]
   );
   return rows[0];
+}
+
+export async function setStripeCustomer(userId, customerId, subscriptionId) {
+  await ensureSchema();
+  await pool.query(
+    'UPDATE users SET stripe_customer_id = $1, stripe_subscription_id = $2 WHERE id = $3',
+    [customerId, subscriptionId, userId]
+  );
+}
+
+export async function findUserByStripeSubscriptionId(subscriptionId) {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT * FROM users WHERE stripe_subscription_id = $1', [subscriptionId]);
+  return rows[0] || null;
 }
 
 export async function getCachedBreaches(email) {
