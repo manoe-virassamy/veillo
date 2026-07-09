@@ -18,11 +18,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder'
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const BETA_LIMIT = 50;
 
-// "Personnel" correspond au plan interne "pro" (nom d'affichage seulement).
 const OFFERS = {
-  'personnel-beta': { plan: 'pro', price: process.env.STRIPE_PRICE_PERSONNEL_BETA, beta: true },
-  'personnel-monthly': { plan: 'pro', price: process.env.STRIPE_PRICE_PERSONNEL_MONTHLY, coupon: process.env.STRIPE_COUPON_PERSONNEL_FIRST_MONTH },
-  'personnel-yearly': { plan: 'pro', price: process.env.STRIPE_PRICE_PERSONNEL_YEARLY },
+  'pro-beta': { plan: 'pro', price: process.env.STRIPE_PRICE_PRO_BETA, beta: true },
+  'pro-monthly': { plan: 'pro', price: process.env.STRIPE_PRICE_PRO_MONTHLY, coupon: process.env.STRIPE_COUPON_PRO_FIRST_MONTH },
+  'pro-yearly': { plan: 'pro', price: process.env.STRIPE_PRICE_PRO_YEARLY },
   'famille-beta': { plan: 'famille', price: process.env.STRIPE_PRICE_FAMILLE_BETA, beta: true },
   'famille-monthly': { plan: 'famille', price: process.env.STRIPE_PRICE_FAMILLE_MONTHLY, coupon: process.env.STRIPE_COUPON_FAMILLE_FIRST_MONTH },
   'famille-yearly': { plan: 'famille', price: process.env.STRIPE_PRICE_FAMILLE_YEARLY },

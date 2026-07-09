@@ -18,7 +18,7 @@ const freePlan = {
   ctaLink: "/",
 };
 
-const personnelFeatures = [
+const proFeatures = [
   "Surveillance continue 24h/24",
   "Alertes en temps réel",
   "Recommandations détaillées",
@@ -27,7 +27,7 @@ const personnelFeatures = [
 ];
 
 const familleFeatures = [
-  "Tout ce qu'inclut Personnel",
+  "Tout ce qu'inclut Pro",
   "Jusqu'à 5 membres",
   "Tableau de bord famille",
   "Alertes groupées",
@@ -36,12 +36,12 @@ const familleFeatures = [
 
 const betaOffers = [
   {
-    name: "Personnel bêta",
+    name: "Pro bêta",
     price: "2,99€",
     period: "/mois, à vie",
     desc: "Le tarif reste bloqué à ce prix tant que l'abonnement est actif.",
-    features: personnelFeatures,
-    offerKey: "personnel-beta",
+    features: proFeatures,
+    offerKey: "pro-beta",
   },
   {
     name: "Famille bêta",
@@ -56,12 +56,12 @@ const betaOffers = [
 const standardOffers = {
   monthly: [
     {
-      name: "Personnel",
+      name: "Pro",
       price: "4,99€",
       period: "/mois",
       note: "1er mois à 1,99€",
-      features: personnelFeatures,
-      offerKey: "personnel-monthly",
+      features: proFeatures,
+      offerKey: "pro-monthly",
     },
     {
       name: "Famille",
@@ -74,12 +74,12 @@ const standardOffers = {
   ],
   yearly: [
     {
-      name: "Personnel",
+      name: "Pro",
       price: "47,90€",
       period: "/an",
       note: "soit 3,99€/mois",
-      features: personnelFeatures,
-      offerKey: "personnel-yearly",
+      features: proFeatures,
+      offerKey: "pro-yearly",
     },
     {
       name: "Famille",
@@ -194,7 +194,7 @@ export default function Pricing() {
 
       <section className="pricing-grid">
         <OfferCard offer={freePlan} />
-        {standardOffers[billing].map((offer) => <OfferCard offer={offer} highlight={offer.name === "Personnel"} key={offer.offerKey} />)}
+        {standardOffers[billing].map((offer) => <OfferCard offer={offer} highlight={offer.name === "Pro"} key={offer.offerKey} />)}
       </section>
 
       <footer>
