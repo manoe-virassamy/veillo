@@ -47,6 +47,22 @@ function ensureSchema() {
           fetched_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS waitlist (
+          id SERIAL PRIMARY KEY,
+          email TEXT UNIQUE NOT NULL,
+          invited BOOLEAN NOT NULL DEFAULT false,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS feedback (
+          id SERIAL PRIMARY KEY,
+          email TEXT,
+          message TEXT NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `);
     })();
   }
   return schemaReady;
@@ -190,4 +206,30 @@ export async function setCachedBreaches(email, breaches) {
      ON CONFLICT (email) DO UPDATE SET breaches = $2, fetched_at = now()`,
     [email.toLowerCase(), JSON.stringify(breaches)]
   );
+}
+
+export async function addToWaitlist(email) {
+  await ensureSchema();
+  const { rows } = await pool.query(
+    `INSERT INTO waitlist (email) VALUES ($1)
+     ON CONFLICT (email) DO NOTHING RETURNING *`,
+    [email.toLowerCase()]
+  );
+  return rows[0] || null;
+}
+
+export async function listWaitlist() {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT * FROM waitlist ORDER BY created_at ASC');
+  return rows;
+}
+
+export async function markWaitlistInvited(email) {
+  await ensureSchema();
+  await pool.query('UPDATE waitlist SET invited = true WHERE email = $1', [email.toLowerCase()]);
+}
+
+export async function saveFeedback({ email, message }) {
+  await ensureSchema();
+  await pool.query('INSERT INTO feedback (email, message) VALUES ($1, $2)', [email || null, message]);
 }

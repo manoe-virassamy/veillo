@@ -22,7 +22,7 @@ export const JWT_SECRET = process.env.JWT_SECRET || 'veillo-dev-secret';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').toLowerCase();
 
-function isAdmin(email) {
+export function isAdmin(email) {
   return !!ADMIN_EMAIL && email.toLowerCase() === ADMIN_EMAIL;
 }
 

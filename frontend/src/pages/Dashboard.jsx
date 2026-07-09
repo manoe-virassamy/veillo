@@ -87,6 +87,55 @@ function PlanSwitcher({ user, token, onPlanChange }) {
   );
 }
 
+function WaitlistPanel({ token }) {
+  const [entries, setEntries] = useState(null);
+  const [inviting, setInviting] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/waitlist`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then(setEntries)
+      .catch(() => setEntries([]));
+  }, [token]);
+
+  async function handleInvite(email) {
+    setInviting(email);
+    try {
+      const res = await fetch(`${API_URL}/api/waitlist/invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setEntries(prev => prev.map(e => e.email === email ? { ...e, invited: true } : e));
+      }
+    } finally {
+      setInviting(null);
+    }
+  }
+
+  return (
+    <details className="admin-waitlist">
+      <summary>Liste d'attente {entries ? `(${entries.length})` : ''}</summary>
+      {entries?.length === 0 && <p className="form-note">Personne pour l'instant.</p>}
+      <ul className="waitlist-list">
+        {entries?.map(e => (
+          <li key={e.email}>
+            <span>{e.email}</span>
+            {e.invited ? (
+              <span className="waitlist-invited">Invité</span>
+            ) : (
+              <button type="button" onClick={() => handleInvite(e.email)} disabled={inviting === e.email}>
+                {inviting === e.email ? 'Envoi...' : 'Inviter'}
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 function ChangePasswordForm({ token }) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -229,6 +278,7 @@ export default function Dashboard() {
 
         {!user.emailVerified && <VerifyBanner token={token} />}
         {user.isAdmin && <PlanSwitcher user={user} token={token} onPlanChange={handlePlanChange} />}
+        {user.isAdmin && <WaitlistPanel token={token} />}
 
         <div className="dashboard-grid">
           <div className="dash-card">

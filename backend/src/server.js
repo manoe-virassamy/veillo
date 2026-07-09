@@ -6,6 +6,8 @@ import { analyzeEmail } from "./analyzer.js";
 import { saveCheck, getLatestCheck } from "./db.js";
 import authRoutes, { JWT_SECRET } from "./routes/auth.js";
 import stripeRoutes, { webhookRouter } from "./routes/stripe.js";
+import waitlistRoutes from "./routes/waitlist.js";
+import feedbackRoutes from "./routes/feedback.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,6 +20,8 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/stripe", stripeRoutes);
+app.use("/api/waitlist", waitlistRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
 app.post("/api/check", async (req, res) => {
   const { email } = req.body;

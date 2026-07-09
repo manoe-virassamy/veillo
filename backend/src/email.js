@@ -91,6 +91,40 @@ export async function sendVerificationEmail(to, verifyUrl) {
   });
 }
 
+export async function sendWaitlistWelcomeEmail(to) {
+  await sgMail.send({
+    to,
+    from: FROM,
+    subject: "Tu es sur la liste d'attente Veillo",
+    html: renderEmail({
+      eyebrow: "Liste d'attente",
+      title: 'Bienvenue sur la liste',
+      bodyHtml: `
+        <p style="margin:0 0 12px;">Merci de ton intérêt pour Veillo ! Ton adresse est enregistrée sur la liste d'attente de la bêta.</p>
+        <p style="margin:0;">On t'envoie une invitation dès qu'une place se libère — pas besoin de refaire quoi que ce soit d'ici là.</p>
+      `,
+    }),
+  });
+}
+
+export async function sendBetaInviteEmail(to) {
+  await sgMail.send({
+    to,
+    from: FROM,
+    subject: 'Ta place pour la bêta Veillo est prête',
+    html: renderEmail({
+      eyebrow: 'Invitation bêta',
+      title: "C'est ton tour de rejoindre Veillo",
+      bodyHtml: `
+        <p style="margin:0 0 12px;">Bonne nouvelle : une place s'est libérée dans la bêta Veillo, et elle est pour toi.</p>
+        <p style="margin:0;">Crée ton compte pour commencer à surveiller tes données personnelles — et si tu as des retours en cours de route, n'hésite pas à nous les partager via le formulaire de feedback.</p>
+      `,
+      ctaText: 'Créer mon compte',
+      ctaUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/inscription`,
+    }),
+  });
+}
+
 export async function sendInviteEmail(to, fromEmail, inviteUrl) {
   await sgMail.send({
     to,

@@ -17,6 +17,8 @@ import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 import CGU from "./pages/CGU";
 import PolitiqueCookies from "./pages/PolitiqueCookies";
+import Beta from "./pages/Beta";
+import Feedback from "./pages/Feedback";
 import "./App.css";
 
 export default function App() {
@@ -40,6 +42,8 @@ export default function App() {
         <Route path="/confidentialite" element={<PolitiqueConfidentialite />} />
         <Route path="/cgu" element={<CGU />} />
         <Route path="/cookies" element={<PolitiqueCookies />} />
+        <Route path="/beta" element={<Beta />} />
+        <Route path="/feedback" element={<Feedback />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
