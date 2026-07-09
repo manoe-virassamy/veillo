@@ -36,6 +36,7 @@ function ensureSchema() {
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT`);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT`);
       await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS beta BOOLEAN NOT NULL DEFAULT false`);
       await pool.query(`
         CREATE TABLE IF NOT EXISTS hibp_cache (
           email TEXT PRIMARY KEY,
@@ -116,13 +117,19 @@ export async function resetPassword(userId, hashedPassword) {
   );
 }
 
-export async function updateUserPlan(userId, plan) {
+export async function updateUserPlan(userId, plan, { beta = false } = {}) {
   await ensureSchema();
   const { rows } = await pool.query(
-    'UPDATE users SET plan = $1 WHERE id = $2 RETURNING *',
-    [plan, userId]
+    'UPDATE users SET plan = $1, beta = $2 WHERE id = $3 RETURNING *',
+    [plan, beta, userId]
   );
   return rows[0];
+}
+
+export async function countBetaUsers() {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT COUNT(*) FROM users WHERE beta = true');
+  return Number(rows[0].count);
 }
 
 export async function setStripeCustomer(userId, customerId, subscriptionId) {

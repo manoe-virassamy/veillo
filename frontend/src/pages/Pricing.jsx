@@ -1,78 +1,158 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-const plans = [
+const freePlan = {
+  name: "Gratuit",
+  price: "0€",
+  period: "pour toujours",
+  desc: "Pour découvrir Veillo et vérifier tes emails librement.",
+  features: [
+    "Vérifications illimitées",
+    "Score de vulnérabilité",
+    "Recommandations personnalisées",
+  ],
+  cta: "Commencer gratuitement",
+  ctaLink: "/",
+};
+
+const personnelFeatures = [
+  "Surveillance continue 24h/24",
+  "Alertes en temps réel",
+  "Recommandations détaillées",
+  "Historique des fuites",
+  "Jusqu'à 3 emails surveillés",
+];
+
+const familleFeatures = [
+  "Tout ce qu'inclut Personnel",
+  "Jusqu'à 5 membres",
+  "Tableau de bord famille",
+  "Alertes groupées",
+  "Accompagnement simplifié pour les moins technophiles",
+];
+
+const betaOffers = [
   {
-    name: "Gratuit",
-    price: "0€",
-    period: "pour toujours",
-    desc: "Pour découvrir Veillo et vérifier tes emails librement.",
-    features: [
-      "Vérifications illimitées",
-      "Score de vulnérabilité",
-      "Recommandations personnalisées",
-    ],
-    cta: "Commencer gratuitement",
-    ctaLink: "/",
-    checkoutPlan: null,
-    highlight: false,
+    name: "Personnel bêta",
+    price: "2,99€",
+    period: "/mois, à vie",
+    desc: "Le tarif reste bloqué à ce prix tant que l'abonnement est actif.",
+    features: personnelFeatures,
+    offerKey: "personnel-beta",
   },
   {
-    name: "Pro",
-    price: "5€",
-    period: "par mois",
-    desc: "Pour ceux qui veulent une vraie protection au quotidien.",
-    features: [
-      "Surveillance continue 24h/24",
-      "Alertes en temps réel",
-      "Recommandations détaillées",
-      "Historique des fuites",
-      "Jusqu'à 3 emails surveillés",
-    ],
-    cta: "Essayer 30 jours gratuits",
-    checkoutPlan: "pro",
-    highlight: true,
-  },
-  {
-    name: "Famille",
-    price: "10€",
-    period: "par mois",
-    desc: "Un seul abonnement pour protéger toute ta famille.",
-    features: [
-      "Tout ce qu'inclut Pro",
-      "Jusqu'à 5 membres",
-      "Tableau de bord famille",
-      "Alertes groupées",
-      "Accompagnement simplifié pour les moins technophiles",
-    ],
-    cta: "Protéger ma famille",
-    checkoutPlan: "famille",
-    highlight: false,
+    name: "Famille bêta",
+    price: "5,99€",
+    period: "/mois, à vie",
+    desc: "Le tarif reste bloqué à ce prix tant que l'abonnement est actif.",
+    features: familleFeatures,
+    offerKey: "famille-beta",
   },
 ];
+
+const standardOffers = {
+  monthly: [
+    {
+      name: "Personnel",
+      price: "4,99€",
+      period: "/mois",
+      note: "1er mois à 1,99€",
+      features: personnelFeatures,
+      offerKey: "personnel-monthly",
+    },
+    {
+      name: "Famille",
+      price: "9,99€",
+      period: "/mois",
+      note: "1er mois à 3,99€",
+      features: familleFeatures,
+      offerKey: "famille-monthly",
+    },
+  ],
+  yearly: [
+    {
+      name: "Personnel",
+      price: "47,90€",
+      period: "/an",
+      note: "soit 3,99€/mois",
+      features: personnelFeatures,
+      offerKey: "personnel-yearly",
+    },
+    {
+      name: "Famille",
+      price: "95,90€",
+      period: "/an",
+      note: "soit 7,99€/mois",
+      features: familleFeatures,
+      offerKey: "famille-yearly",
+    },
+  ],
+};
 
 export default function Pricing() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
-  const [loadingPlan, setLoadingPlan] = useState(null);
+  const [billing, setBilling] = useState("monthly");
+  const [beta, setBeta] = useState(null);
+  const [loadingOffer, setLoadingOffer] = useState(null);
 
-  async function handleUpgrade(checkoutPlan) {
+  useEffect(() => {
+    fetch(`${API_URL}/api/stripe/beta-status`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setBeta)
+      .catch(() => setBeta(null));
+  }, []);
+
+  async function handleCheckout(offerKey) {
     if (!user) { navigate("/connexion"); return; }
-    setLoadingPlan(checkoutPlan);
+    setLoadingOffer(offerKey);
     try {
       const res = await fetch(`${API_URL}/api/stripe/create-checkout-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ plan: checkoutPlan }),
+        body: JSON.stringify({ offer: offerKey }),
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
     } finally {
-      setLoadingPlan(null);
+      setLoadingOffer(null);
     }
+  }
+
+  function OfferCard({ offer, highlight }) {
+    return (
+      <div className={`pricing-card ${highlight ? "pricing-highlight" : ""}`}>
+        <div className="plan-name">{offer.name}</div>
+        <div className="plan-price">
+          <span className="serif">{offer.price}</span>
+          <span className="plan-period"> {offer.period}</span>
+        </div>
+        {offer.note && <p className="plan-note">{offer.note}</p>}
+        <p className="plan-desc">{offer.desc}</p>
+        <ul className="plan-features">
+          {offer.features.map((f) => (
+            <li key={f}><span className="check">✓</span> {f}</li>
+          ))}
+        </ul>
+        {offer.offerKey ? (
+          <button
+            type="button"
+            className={`plan-cta ${highlight ? "plan-cta-highlight" : ""}`}
+            onClick={() => handleCheckout(offer.offerKey)}
+            disabled={loadingOffer === offer.offerKey}
+          >
+            {loadingOffer === offer.offerKey ? "Redirection..." : "Choisir cette offre →"}
+          </button>
+        ) : (
+          <Link to={offer.ctaLink} className={`plan-cta ${highlight ? "plan-cta-highlight" : ""}`}>
+            {offer.cta}
+          </Link>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -85,38 +165,36 @@ export default function Pricing() {
         </p>
       </section>
 
-      <section className="pricing-grid">
-        {plans.map((plan) => (
-          <div className={`pricing-card ${plan.highlight ? "pricing-highlight" : ""}`} key={plan.name}>
-            <div className="plan-name">{plan.name}</div>
-            <div className="plan-price">
-              <span className="serif">{plan.price}</span>
-              <span className="plan-period"> / {plan.period}</span>
-            </div>
-            <p className="plan-desc">{plan.desc}</p>
-            <ul className="plan-features">
-              {plan.features.map((f) => (
-                <li key={f}>
-                  <span className="check">✓</span> {f}
-                </li>
-              ))}
-            </ul>
-            {plan.checkoutPlan ? (
-              <button
-                type="button"
-                className={`plan-cta ${plan.highlight ? "plan-cta-highlight" : ""}`}
-                onClick={() => handleUpgrade(plan.checkoutPlan)}
-                disabled={loadingPlan === plan.checkoutPlan}
-              >
-                {loadingPlan === plan.checkoutPlan ? "Redirection..." : plan.cta}
-              </button>
-            ) : (
-              <Link to={plan.ctaLink} className={`plan-cta ${plan.highlight ? "plan-cta-highlight" : ""}`}>
-                {plan.cta}
-              </Link>
-            )}
+      {beta?.available && (
+        <section className="beta-banner">
+          <div className="eyebrow">🔥 Offre bêta — {beta.remaining} places restantes sur 50</div>
+          <h2 className="serif">Prix bloqué à vie pour les premiers utilisateurs</h2>
+          <div className="pricing-grid">
+            {betaOffers.map((offer) => <OfferCard offer={offer} highlight key={offer.offerKey} />)}
           </div>
-        ))}
+        </section>
+      )}
+
+      <section className="billing-toggle">
+        <button
+          type="button"
+          className={billing === "monthly" ? "active" : ""}
+          onClick={() => setBilling("monthly")}
+        >
+          Mensuel
+        </button>
+        <button
+          type="button"
+          className={billing === "yearly" ? "active" : ""}
+          onClick={() => setBilling("yearly")}
+        >
+          Annuel (-20%)
+        </button>
+      </section>
+
+      <section className="pricing-grid">
+        <OfferCard offer={freePlan} />
+        {standardOffers[billing].map((offer) => <OfferCard offer={offer} highlight={offer.name === "Personnel"} key={offer.offerKey} />)}
       </section>
 
       <footer>

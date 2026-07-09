@@ -513,6 +513,37 @@ footer {
 .cta-btn:hover { background: var(--ink); }
 
 /* PRICING */
+.beta-banner {
+  padding: 0 6vw 60px;
+  text-align: center;
+}
+.beta-banner h2 { font-size: 30px; font-weight: 500; margin-bottom: 32px; }
+.beta-banner .pricing-grid {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0;
+  text-align: left;
+}
+.billing-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 48px;
+}
+.billing-toggle button {
+  padding: 10px 22px;
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.billing-toggle button.active { background: var(--sage); border-color: var(--sage); color: white; }
+.plan-note { font-size: 13px; font-weight: 600; color: var(--coral); margin-bottom: 20px; }
+.pricing-highlight .plan-note { color: rgba(255,255,255,0.85); }
 .pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -611,6 +642,7 @@ footer {
   .check-form { flex-direction: column; }
   .dashboard-grid { grid-template-columns: 1fr; }
   .pricing-grid { grid-template-columns: 1fr; }
+  .beta-banner .pricing-grid { grid-template-columns: 1fr; }
   .families-grid { grid-template-columns: 1fr; }
 
   .nav-toggle { display: flex; }
