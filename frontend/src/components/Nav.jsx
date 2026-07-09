@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/Favicon.PNG";
 
 export default function Nav() {
   const { user } = useAuth();
@@ -9,7 +10,7 @@ export default function Nav() {
   return (
     <nav>
       <Link to="/" className="logo" style={{ textDecoration: "none" }} onClick={() => setOpen(false)}>
-        <span className="logo-dot" />
+        <img src={logo} alt="" className="logo-icon" />
         <span className="serif">Veillo</span>
       </Link>
       <button

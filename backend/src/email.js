@@ -6,10 +6,10 @@ const FROM = { email: process.env.SENDGRID_FROM_EMAIL, name: 'Veillo' };
 const CREAM = '#FAF7F2';
 const SAGE = '#2D4F3E';
 const SAGE_LIGHT = '#4A7361';
-const CORAL = '#E8836B';
 const INK = '#1A1A1A';
 const INK_SOFT = '#5C5650';
 const LINE = '#E2DCD0';
+const LOGO_URL = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/favicon.png`;
 
 function renderEmail({ eyebrow, title, bodyHtml, ctaText, ctaUrl }) {
   return `
@@ -17,7 +17,7 @@ function renderEmail({ eyebrow, title, bodyHtml, ctaText, ctaUrl }) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500&family=Inter:wght@400;600&display=swap">
     <div style="max-width:480px;margin:0 auto;">
       <div style="margin-bottom:36px;">
-        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${CORAL};vertical-align:middle;margin-right:8px;"></span>
+        <img src="${LOGO_URL}" alt="Veillo" width="28" height="28" style="border-radius:6px;vertical-align:middle;margin-right:10px;">
         <span style="font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600;color:${INK};letter-spacing:-0.02em;vertical-align:middle;">Veillo</span>
       </div>
       <div style="background:#ffffff;border:1.5px solid ${LINE};border-radius:24px;padding:40px 36px;">

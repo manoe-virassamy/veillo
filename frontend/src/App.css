@@ -14,7 +14,7 @@ nav {
   align-items: center;
   gap: 8px;
 }
-.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); }
+.logo-icon { width: 32px; height: 32px; border-radius: 8px; }
 nav .links { display: flex; gap: 36px; font-size: 14px; color: var(--ink-soft); align-items: center; }
 nav .links a { text-decoration: none; }
 .nav-toggle {
