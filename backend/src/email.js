@@ -3,23 +3,34 @@ import sgMail from '@sendgrid/mail';
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 const FROM = { email: process.env.SENDGRID_FROM_EMAIL, name: 'Veillo' };
 
-function renderEmail({ title, bodyHtml, ctaText, ctaUrl }) {
+const CREAM = '#FAF7F2';
+const SAGE = '#2D4F3E';
+const SAGE_LIGHT = '#4A7361';
+const CORAL = '#E8836B';
+const INK = '#1A1A1A';
+const INK_SOFT = '#5C5650';
+const LINE = '#E2DCD0';
+
+function renderEmail({ eyebrow, title, bodyHtml, ctaText, ctaUrl }) {
   return `
-  <div style="background:#FAF7F2;padding:40px 20px;font-family:Arial,Helvetica,sans-serif;">
-    <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #E5E0D8;">
-      <div style="background:#2D4F3E;padding:24px 32px;">
-        <span style="color:#ffffff;font-size:20px;font-weight:600;letter-spacing:-0.02em;">Veillo</span>
+  <div style="background:${CREAM};padding:48px 20px;font-family:'Inter',Arial,Helvetica,sans-serif;">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500&family=Inter:wght@400;600&display=swap">
+    <div style="max-width:480px;margin:0 auto;">
+      <div style="margin-bottom:36px;">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${CORAL};vertical-align:middle;margin-right:8px;"></span>
+        <span style="font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600;color:${INK};letter-spacing:-0.02em;vertical-align:middle;">Veillo</span>
       </div>
-      <div style="padding:32px;">
-        <h1 style="font-size:20px;font-weight:600;color:#1A1A1A;margin:0 0 16px;">${title}</h1>
-        <div style="font-size:15px;line-height:1.6;color:#4A4A4A;">${bodyHtml}</div>
+      <div style="background:#ffffff;border:1.5px solid ${LINE};border-radius:24px;padding:40px 36px;">
+        ${eyebrow ? `<div style="font-size:12px;font-weight:600;color:${SAGE_LIGHT};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;">${eyebrow}</div>` : ''}
+        <h1 style="font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:500;color:${INK};margin:0 0 18px;letter-spacing:-0.01em;">${title}</h1>
+        <div style="font-size:15px;line-height:1.65;color:${INK_SOFT};">${bodyHtml}</div>
         ${ctaUrl ? `
         <div style="margin-top:28px;">
-          <a href="${ctaUrl}" style="display:inline-block;background:#2D4F3E;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:100px;font-weight:600;font-size:14px;">${ctaText} →</a>
+          <a href="${ctaUrl}" style="display:inline-block;background:${SAGE};color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:100px;font-weight:600;font-size:14px;font-family:'Inter',Arial,sans-serif;">${ctaText} →</a>
         </div>` : ''}
       </div>
-      <div style="padding:20px 32px;border-top:1px solid #E5E0D8;">
-        <span style="font-size:12px;color:#9A9A9A;">Veillo — cybersécurité personnelle, sans jargon.</span>
+      <div style="text-align:center;margin-top:28px;">
+        <span style="font-size:13px;color:${INK_SOFT};">Veillo — cybersécurité personnelle, sans jargon.</span>
       </div>
     </div>
   </div>
@@ -32,6 +43,7 @@ export async function sendResetEmail(to, resetUrl) {
     from: FROM,
     subject: 'Réinitialise ton mot de passe Veillo',
     html: renderEmail({
+      eyebrow: 'Sécurité de ton compte',
       title: 'Réinitialise ton mot de passe',
       bodyHtml: `
         <p style="margin:0 0 12px;">Tu as demandé à réinitialiser ton mot de passe Veillo.</p>
@@ -49,6 +61,7 @@ export async function sendInviteEmail(to, fromEmail, inviteUrl) {
     from: FROM,
     subject: `${fromEmail} t'invite à rejoindre Veillo`,
     html: renderEmail({
+      eyebrow: 'Invitation',
       title: `${fromEmail} t'invite sur Veillo`,
       bodyHtml: `<p style="margin:0;">${fromEmail} utilise Veillo pour surveiller ses données personnelles et t'invite à faire pareil.</p>`,
       ctaText: 'Créer mon compte gratuit',
