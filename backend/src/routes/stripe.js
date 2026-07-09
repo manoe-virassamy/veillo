@@ -11,7 +11,10 @@ import {
 } from '../db.js';
 import { JWT_SECRET } from './auth.js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+// Une clé vide fait planter le SDK Stripe dès l'import — on utilise un
+// placeholder tant que STRIPE_SECRET_KEY n'est pas configurée, les appels
+// Stripe échoueront proprement à l'exécution plutôt que de crasher le serveur.
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const BETA_LIMIT = 50;
 
