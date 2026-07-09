@@ -11,7 +11,10 @@ export default function Nav() {
     <nav>
       <Link to="/" className="logo" style={{ textDecoration: "none" }} onClick={() => setOpen(false)}>
         <img src={logo} alt="" className="logo-icon" />
-        <span className="serif">Veillo</span>
+        <span className="logo-text">
+          <span className="serif">Veillo</span>
+          <span className="logo-tagline">Voir. Comprendre. Se protéger.</span>
+        </span>
       </Link>
       <button
         className="nav-toggle"
