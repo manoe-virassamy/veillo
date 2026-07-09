@@ -13,7 +13,9 @@ export default function Nav() {
         <img src={logo} alt="" className="logo-icon" />
         <span className="logo-text">
           <span className="serif">Veillo</span>
-          <span className="logo-tagline">Voir. Comprendre. Se protéger.</span>
+          <span className="logo-tagline">
+            Voir<span className="coral">.</span> Comprendre<span className="coral">.</span> Se protéger<span className="coral">.</span>
+          </span>
         </span>
       </Link>
       <button
