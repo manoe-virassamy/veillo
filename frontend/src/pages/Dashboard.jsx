@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Footer from '../components/Footer';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const planLabels = { free: 'Gratuit', pro: 'Pro', famille: 'Famille' };
@@ -263,10 +264,7 @@ export default function Dashboard() {
         <button className="danger-link" onClick={handleDeleteAccount}>Supprimer mon compte</button>
       </section>
 
-      <footer>
-        <div>Veillo</div>
-        <div>Fait avec soin à Paris</div>
-      </footer>
+      <Footer />
     </>
   );
 }

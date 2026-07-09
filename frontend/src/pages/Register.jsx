@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Footer from '../components/Footer';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const VALID_PLANS = ['free', 'pro', 'famille'];
@@ -69,6 +70,13 @@ export default function Register() {
               <label>Confirmer le mot de passe</label>
               <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required placeholder="Répète ton mot de passe" />
             </div>
+            <label className="consent-check">
+              <input type="checkbox" required />
+              <span>
+                J'accepte les <Link to="/cgu" target="_blank">CGU</Link> et la{' '}
+                <Link to="/confidentialite" target="_blank">politique de confidentialité</Link>
+              </span>
+            </label>
             {loading && slow && <p className="form-note">Premier chargement un peu long, le serveur se réveille (jusqu'à 30 secondes)...</p>}
             {error && <p className="error-note">{error}</p>}
             <button type="submit" className="auth-btn" disabled={loading}>
@@ -82,10 +90,7 @@ export default function Register() {
         </div>
       </section>
 
-      <footer>
-        <div>Veillo</div>
-        <div>Fait avec soin à Paris</div>
-      </footer>
+      <Footer />
     </>
   );
 }

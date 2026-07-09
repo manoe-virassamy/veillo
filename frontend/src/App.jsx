@@ -12,6 +12,10 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import MentionsLegales from "./pages/MentionsLegales";
+import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+import CGU from "./pages/CGU";
+import PolitiqueCookies from "./pages/PolitiqueCookies";
 import "./App.css";
 
 export default function App() {
@@ -30,6 +34,10 @@ export default function App() {
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />
+        <Route path="/mentions-legales" element={<MentionsLegales />} />
+        <Route path="/confidentialite" element={<PolitiqueConfidentialite />} />
+        <Route path="/cgu" element={<CGU />} />
+        <Route path="/cookies" element={<PolitiqueCookies />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import Footer from '../components/Footer';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -48,10 +49,7 @@ export default function ResetPassword() {
             </p>
           </div>
         </section>
-        <footer>
-          <div>Veillo</div>
-          <div>Fait avec soin à Paris</div>
-        </footer>
+        <Footer />
       </>
     );
   }
@@ -84,10 +82,7 @@ export default function ResetPassword() {
         </div>
       </section>
 
-      <footer>
-        <div>Veillo</div>
-        <div>Fait avec soin à Paris</div>
-      </footer>
+      <Footer />
     </>
   );
 }

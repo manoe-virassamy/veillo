@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 const steps = [
   {
@@ -52,10 +53,7 @@ export default function HowItWorks() {
         <Link to="/" className="cta-btn">Vérifier mon email →</Link>
       </section>
 
-      <footer>
-        <div>Veillo</div>
-        <div>Fait avec soin à Paris</div>
-      </footer>
+      <Footer />
     </>
   );
 }

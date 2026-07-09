@@ -3,6 +3,7 @@ import ShieldVisual from "../components/ShieldVisual";
 import CheckForm from "../components/CheckForm";
 import ResultsPanel from "../components/ResultsPanel";
 import { useAuth } from "../context/AuthContext";
+import Footer from "../components/Footer";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -101,10 +102,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer>
-        <div>Veillo</div>
-        <div>Fait avec soin à Paris</div>
-      </footer>
+      <Footer />
     </>
   );
 }
