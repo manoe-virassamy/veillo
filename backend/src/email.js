@@ -107,7 +107,7 @@ export async function sendWaitlistWelcomeEmail(to) {
   });
 }
 
-export async function sendBetaInviteEmail(to) {
+export async function sendBetaInviteEmail(to, inviteToken) {
   await sgMail.send({
     to,
     from: FROM,
@@ -117,10 +117,10 @@ export async function sendBetaInviteEmail(to) {
       title: "C'est ton tour de rejoindre Veillo",
       bodyHtml: `
         <p style="margin:0 0 12px;">Bonne nouvelle : une place s'est libérée dans la bêta Veillo, et elle est pour toi.</p>
-        <p style="margin:0;">Crée ton compte pour commencer à surveiller tes données personnelles — et si tu as des retours en cours de route, n'hésite pas à nous les partager via le formulaire de feedback.</p>
+        <p style="margin:0;">Ce lien d'inscription est personnel, à usage unique — crée ton compte pour commencer à surveiller tes données personnelles. Si tu as des retours en cours de route, n'hésite pas à nous les partager via le formulaire de feedback.</p>
       `,
       ctaText: 'Créer mon compte',
-      ctaUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/inscription`,
+      ctaUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/inscription?invite=${inviteToken}`,
     }),
   });
 }

@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-const VALID_PLANS = ['free', 'pro', 'famille'];
 
 export default function Register() {
   const [searchParams] = useSearchParams();
-  const plan = VALID_PLANS.includes(searchParams.get('plan')) ? searchParams.get('plan') : 'free';
+  const inviteToken = searchParams.get('invite');
+  const [inviteState, setInviteState] = useState('checking');
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,6 +18,17 @@ export default function Register() {
   const [slow, setSlow] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!inviteToken) { setInviteState('missing'); return; }
+    fetch(`${API_URL}/api/waitlist/invite/${inviteToken}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.email) { setEmail(data.email); setInviteState('valid'); }
+        else setInviteState('invalid');
+      })
+      .catch(() => setInviteState('invalid'));
+  }, [inviteToken]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -30,7 +41,7 @@ export default function Register() {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, plan, firstName }),
+        body: JSON.stringify({ email, password, plan: 'free', firstName, inviteToken }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error); return; }
@@ -45,13 +56,48 @@ export default function Register() {
     }
   }
 
+  if (inviteState === 'checking') {
+    return (
+      <>
+        <section className="auth-page">
+          <div className="auth-box" style={{ textAlign: 'center' }}>
+            <div className="eyebrow">Un instant</div>
+            <h1 className="serif">Vérification de ton invitation...</h1>
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
+
+  if (inviteState !== 'valid') {
+    return (
+      <>
+        <section className="auth-page">
+          <div className="auth-box" style={{ textAlign: 'center' }}>
+            <div className="eyebrow">Sur invitation</div>
+            <h1 className="serif">Veillo est en bêta fermée</h1>
+            <p className="lead" style={{ marginBottom: '32px' }}>
+              {inviteState === 'missing'
+                ? "L'inscription se fait uniquement sur invitation pour l'instant. Rejoins la liste d'attente, on t'invite dès qu'une place se libère."
+                : "Ce lien d'invitation est invalide ou a déjà été utilisé."}
+            </p>
+            <Link to="/beta" className="auth-btn" style={{ display: 'inline-block', textDecoration: 'none' }}>
+              Rejoindre la liste d'attente
+            </Link>
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <section className="auth-page">
         <div className="auth-box">
           <div className="eyebrow">Créer un compte</div>
           <h1 className="serif">Rejoins Veillo</h1>
-          {plan !== 'free' && <p className="form-note">Plan sélectionné : {plan === 'pro' ? 'Pro' : 'Famille'}</p>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="field">
@@ -60,7 +106,7 @@ export default function Register() {
             </div>
             <div className="field">
               <label>Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="ton@email.com" />
+              <input type="email" value={email} readOnly />
             </div>
             <div className="field">
               <label>Mot de passe</label>

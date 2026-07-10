@@ -14,6 +14,10 @@ import {
   setVerifyToken,
   findUserByVerifyToken,
   markEmailVerified,
+  findWaitlistByInviteToken,
+  clearWaitlistInviteToken,
+  addToWaitlist,
+  setWaitlistInviteToken,
 } from '../db.js';
 import { sendResetEmail, sendInviteEmail, sendWelcomeEmail, sendVerificationEmail } from '../email.js';
 
@@ -45,7 +49,7 @@ async function sendVerification(user) {
 }
 
 router.post('/register', async (req, res) => {
-  const { email, password, plan = 'free', firstName } = req.body;
+  const { email, password, plan = 'free', firstName, inviteToken } = req.body;
 
   if (!email || !password || !firstName) {
     return res.status(400).json({ error: 'Prénom, email et mot de passe requis' });
@@ -57,8 +61,18 @@ router.post('/register', async (req, res) => {
     return res.status(409).json({ error: 'Un compte existe déjà avec cet email' });
   }
 
+  // Bêta fermée : inscription réservée aux invitations issues de la liste d'attente.
+  if (!inviteToken) {
+    return res.status(403).json({ error: "Inscription sur invitation uniquement — rejoins la liste d'attente sur /beta" });
+  }
+  const invite = await findWaitlistByInviteToken(inviteToken);
+  if (!invite || invite.email !== email.toLowerCase()) {
+    return res.status(403).json({ error: 'Invitation invalide ou expirée' });
+  }
+
   const hashed = await bcrypt.hash(password, 10);
   const user = await createUser({ email, password: hashed, plan, firstName: firstName.trim() });
+  await clearWaitlistInviteToken(invite.email);
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
 
   try {
@@ -256,7 +270,10 @@ router.post('/invite', async (req, res) => {
   if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
 
   try {
-    await sendInviteEmail(email, user.email, `${FRONTEND_URL}/inscription`);
+    await addToWaitlist(email);
+    const inviteToken = crypto.randomBytes(24).toString('hex');
+    await setWaitlistInviteToken(email, inviteToken);
+    await sendInviteEmail(email, user.email, `${FRONTEND_URL}/inscription?invite=${inviteToken}`);
     res.json({ ok: true });
   } catch (err) {
     console.error("Erreur d'envoi de l'email d'invitation:", err);

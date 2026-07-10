@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
-import { addToWaitlist, listWaitlist, markWaitlistInvited, findUserById } from '../db.js';
+import crypto from 'crypto';
+import { addToWaitlist, listWaitlist, setWaitlistInviteToken, findWaitlistByInviteToken, findUserById } from '../db.js';
 import { sendWaitlistWelcomeEmail, sendBetaInviteEmail } from '../email.js';
 import { JWT_SECRET, isAdmin } from './auth.js';
 
@@ -22,6 +23,13 @@ router.post('/join', async (req, res) => {
   }
   // Réponse identique que l'email soit déjà inscrit ou non
   res.json({ ok: true });
+});
+
+// Public : la page d'inscription l'utilise pour vérifier le lien d'invitation et pré-remplir l'email.
+router.get('/invite/:token', async (req, res) => {
+  const invite = await findWaitlistByInviteToken(req.params.token);
+  if (!invite) return res.status(404).json({ error: 'Invitation invalide ou expirée' });
+  res.json({ email: invite.email });
 });
 
 router.get('/', async (req, res) => {
@@ -59,8 +67,9 @@ router.post('/invite', async (req, res) => {
   if (!user || !isAdmin(user.email)) return res.status(403).json({ error: 'Non autorisé' });
 
   try {
-    await sendBetaInviteEmail(email);
-    await markWaitlistInvited(email);
+    const token = crypto.randomBytes(24).toString('hex');
+    await setWaitlistInviteToken(email, token);
+    await sendBetaInviteEmail(email, token);
     res.json({ ok: true });
   } catch (err) {
     console.error("Erreur d'envoi de l'invitation bêta:", err);

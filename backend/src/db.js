@@ -52,6 +52,7 @@ function ensureSchema() {
           id SERIAL PRIMARY KEY,
           email TEXT UNIQUE NOT NULL,
           invited BOOLEAN NOT NULL DEFAULT false,
+          invite_token TEXT,
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `);
@@ -224,9 +225,23 @@ export async function listWaitlist() {
   return rows;
 }
 
-export async function markWaitlistInvited(email) {
+export async function setWaitlistInviteToken(email, token) {
   await ensureSchema();
-  await pool.query('UPDATE waitlist SET invited = true WHERE email = $1', [email.toLowerCase()]);
+  await pool.query(
+    'UPDATE waitlist SET invited = true, invite_token = $1 WHERE email = $2',
+    [token, email.toLowerCase()]
+  );
+}
+
+export async function findWaitlistByInviteToken(token) {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT * FROM waitlist WHERE invite_token = $1', [token]);
+  return rows[0] || null;
+}
+
+export async function clearWaitlistInviteToken(email) {
+  await ensureSchema();
+  await pool.query('UPDATE waitlist SET invite_token = NULL WHERE email = $1', [email.toLowerCase()]);
 }
 
 export async function saveFeedback({ email, message }) {

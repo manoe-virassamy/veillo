@@ -324,6 +324,7 @@ footer {
   transition: border-color 0.2s;
 }
 .field input:focus { border-color: var(--sage); }
+.field input:read-only { background: var(--cream); color: var(--ink-soft); }
 .feedback-textarea {
   padding: 14px 18px;
   border: 1.5px solid var(--line);
