@@ -2,6 +2,11 @@ import 'dotenv/config';
 import express from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+// Patch Express pour rattraper automatiquement les erreurs des routes async
+// (sans ça, une exception non gérée dans un handler async fait planter tout
+// le process Node — déjà arrivé une fois avec Stripe, on ferme cette classe
+// de bug une bonne fois pour toutes plutôt que route par route).
+import "express-async-errors";
 import { analyzeEmail } from "./analyzer.js";
 import { saveCheck, getLatestCheck } from "./db.js";
 import authRoutes, { JWT_SECRET } from "./routes/auth.js";
@@ -69,6 +74,13 @@ app.get("/api/check/latest", async (req, res) => {
 });
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+
+// Filet de sécurité : toute erreur non gérée atterrit ici (grâce à
+// express-async-errors) au lieu de faire planter le process.
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: "Erreur serveur" });
+});
 
 app.listen(PORT, () => {
   console.log(`Veillo backend running on http://localhost:${PORT}`);
