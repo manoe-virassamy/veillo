@@ -52,10 +52,10 @@ function ensureSchema() {
           id SERIAL PRIMARY KEY,
           email TEXT UNIQUE NOT NULL,
           invited BOOLEAN NOT NULL DEFAULT false,
-          invite_token TEXT,
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `);
+      await pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS invite_token TEXT`);
       await pool.query(`
         CREATE TABLE IF NOT EXISTS feedback (
           id SERIAL PRIMARY KEY,
