@@ -128,7 +128,7 @@ function WaitlistPanel({ token }) {
       <ul className="waitlist-list">
         {entries?.map(e => (
           <li key={e.email}>
-            <span>{e.email}</span>
+            <span className="waitlist-email">{e.email}</span>
             {e.invited ? (
               <span className="waitlist-invited">Invité</span>
             ) : (

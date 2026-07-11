@@ -500,10 +500,18 @@ footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   background: white;
   border-radius: 8px;
   padding: 8px 12px;
+}
+.waitlist-email {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
 }
 .waitlist-list button {
   background: none;
@@ -763,6 +771,8 @@ footer {
   .beta-banner .pricing-grid { grid-template-columns: 1fr; }
   .families-grid { grid-template-columns: 1fr; }
   .legal-table { display: block; overflow-x: auto; white-space: nowrap; }
+  .waitlist-list li { flex-direction: column; align-items: flex-start; }
+  .waitlist-email { max-width: 100%; white-space: normal; word-break: break-all; }
   footer { flex-direction: column; align-items: flex-start; gap: 16px; }
   .footer-links { justify-content: flex-start; }
 
