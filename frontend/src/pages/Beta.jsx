@@ -6,6 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 export default function Beta() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
+  const [invited, setInvited] = useState(false);
   const [error, setError] = useState(null);
 
   async function handleSubmit(e) {
@@ -19,6 +20,8 @@ export default function Beta() {
         body: JSON.stringify({ email }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+      setInvited(!!data.invited);
       setStatus("done");
     } catch {
       setError("Une erreur est survenue, réessaie.");
@@ -41,7 +44,9 @@ export default function Beta() {
 
         {status === "done" ? (
           <p className="form-note">
-            C'est fait — tu es sur la liste. On t'écrit dès qu'une place se libère.
+            {invited
+              ? "C'est fait — ton invitation vient d'être envoyée par email. Va vérifier ta boîte de réception (et les spams, au cas où)."
+              : "C'est fait — tu es sur la liste. L'invitation te sera envoyée par email dès qu'une place sera prête."}
           </p>
         ) : (
           <form className="check-form" onSubmit={handleSubmit}>

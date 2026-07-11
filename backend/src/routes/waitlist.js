@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import {
   addToWaitlist,
+  findWaitlistByEmail,
   listWaitlist,
   countInvitedWaitlist,
   setWaitlistInviteToken,
@@ -28,11 +29,15 @@ router.post('/join', async (req, res) => {
   }
 
   const entry = await addToWaitlist(email);
-  if (entry) {
+  const existing = entry || await findWaitlistByEmail(email);
+  let invited = existing?.invited || false;
+
+  if (entry && !invited) {
     try {
       const invitedCount = await countInvitedWaitlist();
       if (invitedCount < AUTO_INVITE_LIMIT) {
         await inviteWaitlistEntry(entry.email);
+        invited = true;
       } else {
         await sendWaitlistWelcomeEmail(entry.email);
       }
@@ -40,8 +45,8 @@ router.post('/join', async (req, res) => {
       console.error("Erreur d'envoi de l'email liste d'attente:", err);
     }
   }
-  // Réponse identique que l'email soit déjà inscrit ou non
-  res.json({ ok: true });
+
+  res.json({ ok: true, invited });
 });
 
 // Public : la page d'inscription l'utilise pour vérifier le lien d'invitation et pré-remplir l'email.

@@ -219,6 +219,12 @@ export async function addToWaitlist(email) {
   return rows[0] || null;
 }
 
+export async function findWaitlistByEmail(email) {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT * FROM waitlist WHERE email = $1', [email.toLowerCase()]);
+  return rows[0] || null;
+}
+
 export async function listWaitlist() {
   await ensureSchema();
   const { rows } = await pool.query('SELECT * FROM waitlist ORDER BY created_at ASC');
