@@ -225,6 +225,12 @@ export async function listWaitlist() {
   return rows;
 }
 
+export async function countInvitedWaitlist() {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT COUNT(*) FROM waitlist WHERE invited = true');
+  return Number(rows[0].count);
+}
+
 export async function setWaitlistInviteToken(email, token) {
   await ensureSchema();
   await pool.query(

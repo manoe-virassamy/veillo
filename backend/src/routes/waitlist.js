@@ -1,11 +1,25 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { addToWaitlist, listWaitlist, setWaitlistInviteToken, findWaitlistByInviteToken, findUserById } from '../db.js';
+import {
+  addToWaitlist,
+  listWaitlist,
+  countInvitedWaitlist,
+  setWaitlistInviteToken,
+  findWaitlistByInviteToken,
+  findUserById,
+} from '../db.js';
 import { sendWaitlistWelcomeEmail, sendBetaInviteEmail } from '../email.js';
 import { JWT_SECRET, isAdmin } from './auth.js';
 
 const router = Router();
+const AUTO_INVITE_LIMIT = 50;
+
+async function inviteWaitlistEntry(email) {
+  const token = crypto.randomBytes(24).toString('hex');
+  await setWaitlistInviteToken(email, token);
+  await sendBetaInviteEmail(email, token);
+}
 
 router.post('/join', async (req, res) => {
   const { email } = req.body;
@@ -16,9 +30,14 @@ router.post('/join', async (req, res) => {
   const entry = await addToWaitlist(email);
   if (entry) {
     try {
-      await sendWaitlistWelcomeEmail(entry.email);
+      const invitedCount = await countInvitedWaitlist();
+      if (invitedCount < AUTO_INVITE_LIMIT) {
+        await inviteWaitlistEntry(entry.email);
+      } else {
+        await sendWaitlistWelcomeEmail(entry.email);
+      }
     } catch (err) {
-      console.error("Erreur d'envoi de l'email de bienvenue liste d'attente:", err);
+      console.error("Erreur d'envoi de l'email liste d'attente:", err);
     }
   }
   // Réponse identique que l'email soit déjà inscrit ou non
@@ -67,9 +86,7 @@ router.post('/invite', async (req, res) => {
   if (!user || !isAdmin(user.email)) return res.status(403).json({ error: 'Non autorisé' });
 
   try {
-    const token = crypto.randomBytes(24).toString('hex');
-    await setWaitlistInviteToken(email, token);
-    await sendBetaInviteEmail(email, token);
+    await inviteWaitlistEntry(email);
     res.json({ ok: true });
   } catch (err) {
     console.error("Erreur d'envoi de l'invitation bêta:", err);
