@@ -517,6 +517,7 @@ footer {
 }
 .waitlist-list button:disabled { opacity: 0.6; cursor: default; }
 .waitlist-invited { font-size: 12px; color: var(--sage-light); font-weight: 600; }
+.waitlist-pending { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--coral); font-weight: 600; }
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

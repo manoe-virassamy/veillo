@@ -87,6 +87,8 @@ function PlanSwitcher({ user, token, onPlanChange }) {
   );
 }
 
+const AUTO_INVITE_LIMIT = 50;
+
 function WaitlistPanel({ token }) {
   const [entries, setEntries] = useState(null);
   const [inviting, setInviting] = useState(null);
@@ -114,9 +116,14 @@ function WaitlistPanel({ token }) {
     }
   }
 
+  const invitedCount = entries?.filter(e => e.invited).length ?? 0;
+
   return (
     <details className="admin-waitlist">
-      <summary>Liste d'attente {entries ? `(${entries.length})` : ''}</summary>
+      <summary>
+        Liste d'attente — {invitedCount}/{AUTO_INVITE_LIMIT} invités
+        {entries ? ` (${entries.length} au total)` : ''}
+      </summary>
       {entries?.length === 0 && <p className="form-note">Personne pour l'instant.</p>}
       <ul className="waitlist-list">
         {entries?.map(e => (
@@ -125,9 +132,12 @@ function WaitlistPanel({ token }) {
             {e.invited ? (
               <span className="waitlist-invited">Invité</span>
             ) : (
-              <button type="button" onClick={() => handleInvite(e.email)} disabled={inviting === e.email}>
-                {inviting === e.email ? 'Envoi...' : 'Inviter'}
-              </button>
+              <span className="waitlist-pending">
+                En attente
+                <button type="button" onClick={() => handleInvite(e.email)} disabled={inviting === e.email}>
+                  {inviting === e.email ? 'Envoi...' : "Envoyer l'invitation"}
+                </button>
+              </span>
             )}
           </li>
         ))}
