@@ -117,7 +117,7 @@ export async function sendBetaInviteEmail(to, inviteToken) {
       title: "C'est ton tour de rejoindre Veillo",
       bodyHtml: `
         <p style="margin:0 0 12px;">Bonne nouvelle : une place s'est libérée dans la bêta Veillo, et elle est pour toi.</p>
-        <p style="margin:0;">Ce lien d'inscription est personnel, à usage unique — crée ton compte pour commencer à surveiller tes données personnelles. Si tu as des retours en cours de route, n'hésite pas à nous les partager via le formulaire de feedback.</p>
+        <p style="margin:0;">Ce lien d'inscription est personnel, à usage unique — crée ton compte pour commencer à surveiller tes données personnelles. Si tu as des retours en cours de route, n'hésite pas à nous les partager via le <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/feedback" style="color:${SAGE};">formulaire de feedback</a>.</p>
       `,
       ctaText: 'Créer mon compte',
       ctaUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/inscription?invite=${inviteToken}`,

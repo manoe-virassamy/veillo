@@ -260,3 +260,9 @@ export async function saveFeedback({ email, message }) {
   await ensureSchema();
   await pool.query('INSERT INTO feedback (email, message) VALUES ($1, $2)', [email || null, message]);
 }
+
+export async function listFeedback() {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT * FROM feedback ORDER BY created_at DESC');
+  return rows;
+}

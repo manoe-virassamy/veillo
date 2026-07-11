@@ -146,6 +146,35 @@ function WaitlistPanel({ token }) {
   );
 }
 
+function FeedbackPanel({ token }) {
+  const [entries, setEntries] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/feedback`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then(setEntries)
+      .catch(() => setEntries([]));
+  }, [token]);
+
+  return (
+    <details className="admin-waitlist">
+      <summary>Retours des bêta testeurs {entries ? `(${entries.length})` : ''}</summary>
+      {entries?.length === 0 && <p className="form-note">Aucun retour pour l'instant.</p>}
+      <ul className="feedback-list">
+        {entries?.map(f => (
+          <li key={f.id}>
+            <div className="feedback-meta">
+              <span>{f.email || 'Anonyme'}</span>
+              <span>{new Date(f.created_at).toLocaleDateString('fr-FR')}</span>
+            </div>
+            <p>{f.message}</p>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 function ChangePasswordForm({ token }) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -289,6 +318,7 @@ export default function Dashboard() {
         {!user.emailVerified && <VerifyBanner token={token} />}
         {user.isAdmin && <PlanSwitcher user={user} token={token} onPlanChange={handlePlanChange} />}
         {user.isAdmin && <WaitlistPanel token={token} />}
+        {user.isAdmin && <FeedbackPanel token={token} />}
 
         <div className="dashboard-grid">
           <div className="dash-card">

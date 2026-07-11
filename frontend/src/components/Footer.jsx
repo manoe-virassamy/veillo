@@ -5,6 +5,7 @@ export default function Footer() {
     <footer>
       <div>Veillo</div>
       <div className="footer-links">
+        <Link to="/feedback">Donner un avis</Link>
         <Link to="/mentions-legales">Mentions légales</Link>
         <Link to="/confidentialite">Confidentialité</Link>
         <Link to="/cgu">CGU</Link>

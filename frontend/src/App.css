@@ -526,6 +526,10 @@ footer {
 .waitlist-list button:disabled { opacity: 0.6; cursor: default; }
 .waitlist-invited { font-size: 12px; color: var(--sage-light); font-weight: 600; }
 .waitlist-pending { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--coral); font-weight: 600; }
+.feedback-list { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.feedback-list li { background: white; border-radius: 8px; padding: 10px 14px; }
+.feedback-meta { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--sage-light); font-weight: 600; margin-bottom: 6px; }
+.feedback-list p { font-size: 13px; color: var(--ink); line-height: 1.5; }
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
