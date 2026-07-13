@@ -96,7 +96,9 @@ export async function sendVerificationEmail(to, verifyUrl) {
   });
 }
 
-export async function sendWaitlistWelcomeEmail(to, firstName) {
+export async function sendWaitlistWelcomeEmail(to, firstName, unsubToken) {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const siteHost = frontendUrl.replace(/^https?:\/\//, '');
   await sgMail.send({
     to,
     from: FROM,
@@ -107,9 +109,12 @@ export async function sendWaitlistWelcomeEmail(to, firstName) {
       bodyHtml: `
         <p style="margin:0 0 12px;">${greeting(firstName)}</p>
         <p style="margin:0 0 12px;">Merci pour ton intérêt pour Veillo.</p>
-        <p style="margin:0 0 12px;">Les 50 places de notre bêta sont pour l'instant complètes. Ta demande a bien été enregistrée et tu seras notifié(e) dès qu'une place se libère.</p>
-        <p style="margin:0 0 20px;">On revient vers toi très bientôt.</p>
+        <p style="margin:0 0 12px;">Les 50 places automatiques de notre bêta sont pour l'instant complètes. Ta demande a bien été enregistrée — je l'examinerai personnellement et t'enverrai un accès si une place se libère.</p>
+        <p style="margin:0 0 20px;">À très bientôt,</p>
         <p style="margin:0;">Manoé<br>Fondateur de Veillo</p>
+      `,
+      afterCta: `
+        <p style="margin:0;font-size:12px;">Tu reçois cet email car tu t'es inscrit(e) sur ${siteHost}. <a href="${frontendUrl}/desinscription?token=${unsubToken}" style="color:${INK_SOFT};">Se désinscrire</a></p>
       `,
     }),
   });

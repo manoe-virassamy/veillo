@@ -8,6 +8,7 @@ import {
   countInvitedWaitlist,
   setWaitlistInviteToken,
   findWaitlistByInviteToken,
+  unsubscribeWaitlistByToken,
   findUserById,
 } from '../db.js';
 import { sendWaitlistWelcomeEmail, sendBetaInviteEmail } from '../email.js';
@@ -39,7 +40,7 @@ router.post('/join', async (req, res) => {
         await inviteWaitlistEntry(entry.email, entry.first_name);
         invited = true;
       } else {
-        await sendWaitlistWelcomeEmail(entry.email, entry.first_name);
+        await sendWaitlistWelcomeEmail(entry.email, entry.first_name, entry.unsub_token);
       }
     } catch (err) {
       console.error("Erreur d'envoi de l'email liste d'attente:", err);
@@ -54,6 +55,13 @@ router.get('/invite/:token', async (req, res) => {
   const invite = await findWaitlistByInviteToken(req.params.token);
   if (!invite) return res.status(404).json({ error: 'Invitation invalide ou expirée' });
   res.json({ email: invite.email });
+});
+
+// Public : lien de désinscription présent dans les emails de liste d'attente.
+router.post('/unsubscribe/:token', async (req, res) => {
+  const entry = await unsubscribeWaitlistByToken(req.params.token);
+  if (!entry) return res.status(404).json({ error: 'Lien invalide' });
+  res.json({ ok: true });
 });
 
 router.get('/', async (req, res) => {
@@ -92,6 +100,7 @@ router.post('/invite', async (req, res) => {
 
   try {
     const entry = await findWaitlistByEmail(email);
+    if (entry?.unsubscribed) return res.status(409).json({ error: 'Cette personne s\'est désinscrite' });
     await inviteWaitlistEntry(email, entry?.first_name);
     res.json({ ok: true });
   } catch (err) {

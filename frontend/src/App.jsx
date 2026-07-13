@@ -19,6 +19,7 @@ import CGU from "./pages/CGU";
 import PolitiqueCookies from "./pages/PolitiqueCookies";
 import Beta from "./pages/Beta";
 import Feedback from "./pages/Feedback";
+import Unsubscribe from "./pages/Unsubscribe";
 import "./App.css";
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/cookies" element={<PolitiqueCookies />} />
         <Route path="/beta" element={<Beta />} />
         <Route path="/feedback" element={<Feedback />} />
+        <Route path="/desinscription" element={<Unsubscribe />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>

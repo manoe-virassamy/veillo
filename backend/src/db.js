@@ -1,4 +1,5 @@
 import pg from 'pg';
+import crypto from 'crypto';
 
 const { Pool } = pg;
 
@@ -57,6 +58,8 @@ function ensureSchema() {
       `);
       await pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS invite_token TEXT`);
       await pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS first_name TEXT`);
+      await pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS unsub_token TEXT`);
+      await pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS unsubscribed BOOLEAN NOT NULL DEFAULT false`);
       await pool.query(`
         CREATE TABLE IF NOT EXISTS feedback (
           id SERIAL PRIMARY KEY,
@@ -217,10 +220,11 @@ export async function setCachedBreaches(email, breaches) {
 
 export async function addToWaitlist(email, firstName) {
   await ensureSchema();
+  const unsubToken = crypto.randomBytes(16).toString('hex');
   const { rows } = await pool.query(
-    `INSERT INTO waitlist (email, first_name) VALUES ($1, $2)
+    `INSERT INTO waitlist (email, first_name, unsub_token) VALUES ($1, $2, $3)
      ON CONFLICT (email) DO NOTHING RETURNING *`,
-    [email.toLowerCase(), firstName || null]
+    [email.toLowerCase(), firstName || null, unsubToken]
   );
   return rows[0] || null;
 }
@@ -228,6 +232,15 @@ export async function addToWaitlist(email, firstName) {
 export async function findWaitlistByEmail(email) {
   await ensureSchema();
   const { rows } = await pool.query('SELECT * FROM waitlist WHERE email = $1', [email.toLowerCase()]);
+  return rows[0] || null;
+}
+
+export async function unsubscribeWaitlistByToken(token) {
+  await ensureSchema();
+  const { rows } = await pool.query(
+    'UPDATE waitlist SET unsubscribed = true WHERE unsub_token = $1 RETURNING *',
+    [token]
+  );
   return rows[0] || null;
 }
 
