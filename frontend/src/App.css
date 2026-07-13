@@ -93,6 +93,21 @@ h1 em {
   transition: border-color 0.2s;
 }
 .check-form input:focus { border-color: var(--sage); }
+.beta-firstname {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  padding: 16px 20px;
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  background: white;
+  outline: none;
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.beta-firstname:focus { border-color: var(--sage); }
 .check-form button {
   padding: 16px 28px;
   border: none;

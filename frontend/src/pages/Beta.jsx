@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export default function Beta() {
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
   const [invited, setInvited] = useState(false);
@@ -17,7 +18,7 @@ export default function Beta() {
       const res = await fetch(`${API_URL}/api/waitlist/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, firstName }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -49,17 +50,27 @@ export default function Beta() {
               : "C'est fait — tu es sur la liste. L'invitation te sera envoyée par email dès qu'une place sera prête."}
           </p>
         ) : (
-          <form className="check-form" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <input
-              type="email"
-              placeholder="ton.email@exemple.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Ton prénom"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               required
+              className="beta-firstname"
             />
-            <button type="submit" disabled={status === "sending"}>
-              {status === "sending" ? "Envoi..." : "Rejoindre la liste d'attente"}
-            </button>
+            <div className="check-form">
+              <input
+                type="email"
+                placeholder="ton.email@exemple.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <button type="submit" disabled={status === "sending"}>
+                {status === "sending" ? "Envoi..." : "Rejoindre la liste d'attente"}
+              </button>
+            </div>
           </form>
         )}
         {error && <p className="error-note">{error}</p>}

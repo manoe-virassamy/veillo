@@ -11,7 +11,7 @@ const INK_SOFT = '#5C5650';
 const LINE = '#E2DCD0';
 const LOGO_URL = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/favicon.png`;
 
-function renderEmail({ eyebrow, title, bodyHtml, ctaText, ctaUrl }) {
+function renderEmail({ eyebrow, title, bodyHtml, ctaText, ctaUrl, afterCta }) {
   return `
   <div style="background:${CREAM};padding:48px 20px;font-family:'Inter',Arial,Helvetica,sans-serif;">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500&family=Inter:wght@400;600&display=swap">
@@ -28,6 +28,7 @@ function renderEmail({ eyebrow, title, bodyHtml, ctaText, ctaUrl }) {
         <div style="margin-top:28px;">
           <a href="${ctaUrl}" style="display:inline-block;background:${SAGE};color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:100px;font-weight:600;font-size:14px;font-family:'Inter',Arial,sans-serif;">${ctaText} →</a>
         </div>` : ''}
+        ${afterCta ? `<div style="margin-top:24px;font-size:14px;line-height:1.65;color:${INK_SOFT};">${afterCta}</div>` : ''}
       </div>
       <div style="text-align:center;margin-top:28px;">
         <span style="font-size:13px;color:${INK_SOFT};">Veillo — cybersécurité personnelle, sans jargon.</span>
@@ -35,6 +36,10 @@ function renderEmail({ eyebrow, title, bodyHtml, ctaText, ctaUrl }) {
     </div>
   </div>
   `;
+}
+
+function greeting(firstName) {
+  return firstName ? `Bonjour ${firstName},` : 'Bonjour,';
 }
 
 export async function sendResetEmail(to, resetUrl) {
@@ -91,36 +96,46 @@ export async function sendVerificationEmail(to, verifyUrl) {
   });
 }
 
-export async function sendWaitlistWelcomeEmail(to) {
+export async function sendWaitlistWelcomeEmail(to, firstName) {
   await sgMail.send({
     to,
     from: FROM,
-    subject: "Tu es sur la liste d'attente Veillo",
+    subject: 'Ta demande d\'accès à Veillo',
     html: renderEmail({
       eyebrow: "Liste d'attente",
-      title: 'Bienvenue sur la liste',
+      title: 'Merci pour ta demande',
       bodyHtml: `
-        <p style="margin:0 0 12px;">Merci de ton intérêt pour Veillo ! Ton adresse est enregistrée sur la liste d'attente de la bêta.</p>
-        <p style="margin:0;">On t'envoie une invitation dès qu'une place se libère — pas besoin de refaire quoi que ce soit d'ici là.</p>
+        <p style="margin:0 0 12px;">${greeting(firstName)}</p>
+        <p style="margin:0 0 12px;">Merci pour ton intérêt pour Veillo.</p>
+        <p style="margin:0 0 12px;">Les 50 places de notre bêta sont pour l'instant complètes. Ta demande a bien été enregistrée et tu seras notifié(e) dès qu'une place se libère.</p>
+        <p style="margin:0 0 20px;">On revient vers toi très bientôt.</p>
+        <p style="margin:0;">Manoé<br>Fondateur de Veillo</p>
       `,
     }),
   });
 }
 
-export async function sendBetaInviteEmail(to, inviteToken) {
+export async function sendBetaInviteEmail(to, firstName, inviteToken) {
   await sgMail.send({
     to,
     from: FROM,
-    subject: 'Ta place pour la bêta Veillo est prête',
+    subject: 'Tu es invité(e) à tester Veillo',
     html: renderEmail({
       eyebrow: 'Invitation bêta',
-      title: "C'est ton tour de rejoindre Veillo",
+      title: 'Ton accès à la bêta est activé',
       bodyHtml: `
-        <p style="margin:0 0 12px;">Bonne nouvelle : une place s'est libérée dans la bêta Veillo, et elle est pour toi.</p>
-        <p style="margin:0;">Ce lien d'inscription est personnel, à usage unique — crée ton compte pour commencer à surveiller tes données personnelles. Si tu as des retours en cours de route, n'hésite pas à nous les partager via le <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/feedback" style="color:${SAGE};">formulaire de feedback</a>.</p>
+        <p style="margin:0 0 12px;">${greeting(firstName)}</p>
+        <p style="margin:0 0 12px;">Tu fais partie des 50 premières personnes à rejoindre la bêta de Veillo. Ton accès est activé.</p>
+        <p style="margin:0 0 4px;"><strong>Veillo, c'est quoi ?</strong></p>
+        <p style="margin:0;">Une app qui vérifie si tes données personnelles ont fuité sur internet et te dit exactement quoi faire.</p>
       `,
       ctaText: 'Créer mon compte',
       ctaUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/inscription?invite=${inviteToken}`,
+      afterCta: `
+        <p style="margin:0 0 12px;">Une fois connecté, n'hésite pas à nous laisser ton avis via le bouton "Donner un avis" en bas de l'app — ça nous aide énormément.</p>
+        <p style="margin:0 0 20px;">100% gratuit, aucune carte bancaire requise.</p>
+        <p style="margin:0;">Merci de nous faire confiance,<br>Manoé<br>Fondateur de Veillo</p>
+      `,
     }),
   });
 }

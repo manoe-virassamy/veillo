@@ -56,6 +56,7 @@ function ensureSchema() {
         )
       `);
       await pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS invite_token TEXT`);
+      await pool.query(`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS first_name TEXT`);
       await pool.query(`
         CREATE TABLE IF NOT EXISTS feedback (
           id SERIAL PRIMARY KEY,
@@ -214,12 +215,12 @@ export async function setCachedBreaches(email, breaches) {
   );
 }
 
-export async function addToWaitlist(email) {
+export async function addToWaitlist(email, firstName) {
   await ensureSchema();
   const { rows } = await pool.query(
-    `INSERT INTO waitlist (email) VALUES ($1)
+    `INSERT INTO waitlist (email, first_name) VALUES ($1, $2)
      ON CONFLICT (email) DO NOTHING RETURNING *`,
-    [email.toLowerCase()]
+    [email.toLowerCase(), firstName || null]
   );
   return rows[0] || null;
 }
