@@ -167,7 +167,13 @@ function FeedbackPanel({ token }) {
               <span>{f.email || 'Anonyme'}</span>
               <span>{new Date(f.created_at).toLocaleDateString('fr-FR')}</span>
             </div>
-            <p>{f.message}</p>
+            <div className="feedback-answers">
+              <div><strong>Note :</strong> {f.rating}/10</div>
+              <div><strong>Compréhension :</strong> {f.understanding}</div>
+              <div><strong>Utilité ressentie :</strong> {f.usefulness}</div>
+              <div><strong>S'abonnerait à 4,99€/mois :</strong> {f.subscribe_intent}</div>
+              {f.message && <div><strong>Frein / manque :</strong> {f.message}</div>}
+            </div>
           </li>
         ))}
       </ul>

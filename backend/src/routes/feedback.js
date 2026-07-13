@@ -5,13 +5,28 @@ import { JWT_SECRET, isAdmin } from './auth.js';
 
 const router = Router();
 
+const RATING_MIN = 1;
+const RATING_MAX = 10;
+
 router.post('/', async (req, res) => {
-  const { email, message } = req.body;
-  if (!message || !message.trim()) {
-    return res.status(400).json({ error: 'Message requis' });
+  const { email, rating, understanding, usefulness, message, subscribeIntent } = req.body;
+
+  const ratingNum = Number(rating);
+  if (!Number.isInteger(ratingNum) || ratingNum < RATING_MIN || ratingNum > RATING_MAX) {
+    return res.status(400).json({ error: 'Note globale requise (1 à 10)' });
+  }
+  if (!understanding || !usefulness || !subscribeIntent) {
+    return res.status(400).json({ error: 'Merci de répondre à toutes les questions' });
   }
 
-  await saveFeedback({ email: email || null, message: message.trim() });
+  await saveFeedback({
+    email: email || null,
+    rating: ratingNum,
+    understanding,
+    usefulness,
+    message: message?.trim() || null,
+    subscribeIntent,
+  });
   res.status(201).json({ ok: true });
 });
 

@@ -60,10 +60,15 @@ function ensureSchema() {
         CREATE TABLE IF NOT EXISTS feedback (
           id SERIAL PRIMARY KEY,
           email TEXT,
-          message TEXT NOT NULL,
+          message TEXT,
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `);
+      await pool.query(`ALTER TABLE feedback ALTER COLUMN message DROP NOT NULL`);
+      await pool.query(`ALTER TABLE feedback ADD COLUMN IF NOT EXISTS rating SMALLINT`);
+      await pool.query(`ALTER TABLE feedback ADD COLUMN IF NOT EXISTS understanding TEXT`);
+      await pool.query(`ALTER TABLE feedback ADD COLUMN IF NOT EXISTS usefulness TEXT`);
+      await pool.query(`ALTER TABLE feedback ADD COLUMN IF NOT EXISTS subscribe_intent TEXT`);
     })();
   }
   return schemaReady;
@@ -256,9 +261,13 @@ export async function clearWaitlistInviteToken(email) {
   await pool.query('UPDATE waitlist SET invite_token = NULL WHERE email = $1', [email.toLowerCase()]);
 }
 
-export async function saveFeedback({ email, message }) {
+export async function saveFeedback({ email, rating, understanding, usefulness, message, subscribeIntent }) {
   await ensureSchema();
-  await pool.query('INSERT INTO feedback (email, message) VALUES ($1, $2)', [email || null, message]);
+  await pool.query(
+    `INSERT INTO feedback (email, rating, understanding, usefulness, message, subscribe_intent)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [email || null, rating, understanding, usefulness, message || null, subscribeIntent]
+  );
 }
 
 export async function listFeedback() {

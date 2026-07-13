@@ -485,6 +485,19 @@ footer {
 }
 .admin-plan-btn.active { background: var(--sage); border-color: var(--sage); color: white; }
 .admin-plan-btn:disabled { opacity: 0.6; cursor: default; }
+.choice-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice-btn {
+  padding: 8px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  background: white;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.choice-btn.active { background: var(--sage); border-color: var(--sage); color: white; }
 .admin-waitlist {
   background: #F0F5F2;
   border: 1px dashed var(--sage);
@@ -530,6 +543,7 @@ footer {
 .feedback-list li { background: white; border-radius: 8px; padding: 10px 14px; }
 .feedback-meta { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--sage-light); font-weight: 600; margin-bottom: 6px; }
 .feedback-list p { font-size: 13px; color: var(--ink); line-height: 1.5; }
+.feedback-answers { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--ink); line-height: 1.5; }
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
