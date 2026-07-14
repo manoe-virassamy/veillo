@@ -17,10 +17,10 @@ import { JWT_SECRET, isAdmin } from './auth.js';
 const router = Router();
 const AUTO_INVITE_LIMIT = 50;
 
-async function inviteWaitlistEntry(email, unsubToken) {
+async function inviteWaitlistEntry(email, firstName, unsubToken) {
   const token = crypto.randomBytes(24).toString('hex');
   await setWaitlistInviteToken(email, token);
-  await sendBetaInviteEmail(email, token, unsubToken);
+  await sendBetaInviteEmail(email, firstName, token, unsubToken);
 }
 
 router.post('/join', async (req, res) => {
@@ -37,7 +37,7 @@ router.post('/join', async (req, res) => {
     try {
       const invitedCount = await countInvitedWaitlist();
       if (invitedCount < AUTO_INVITE_LIMIT) {
-        await inviteWaitlistEntry(entry.email, entry.unsub_token);
+        await inviteWaitlistEntry(entry.email, entry.first_name, entry.unsub_token);
         invited = true;
       } else {
         await sendWaitlistWelcomeEmail(entry.email, entry.first_name, entry.unsub_token);
@@ -101,7 +101,7 @@ router.post('/invite', async (req, res) => {
   try {
     const entry = await findWaitlistByEmail(email);
     if (entry?.unsubscribed) return res.status(409).json({ error: 'Cette personne s\'est désinscrite' });
-    await inviteWaitlistEntry(email, entry?.unsub_token);
+    await inviteWaitlistEntry(email, entry?.first_name, entry?.unsub_token);
     res.json({ ok: true });
   } catch (err) {
     console.error("Erreur d'envoi de l'invitation bêta:", err);

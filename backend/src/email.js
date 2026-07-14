@@ -120,7 +120,7 @@ export async function sendWaitlistWelcomeEmail(to, firstName, unsubToken) {
   });
 }
 
-export async function sendBetaInviteEmail(to, inviteToken, unsubToken) {
+export async function sendBetaInviteEmail(to, firstName, inviteToken, unsubToken) {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
   const siteHost = frontendUrl.replace(/^https?:\/\//, '');
   await sgMail.send({
@@ -131,7 +131,7 @@ export async function sendBetaInviteEmail(to, inviteToken, unsubToken) {
       eyebrow: 'Invitation bêta',
       title: 'Ton accès à la bêta est activé',
       bodyHtml: `
-        <p style="margin:0 0 12px;">Bonjour,</p>
+        <p style="margin:0 0 12px;">${greeting(firstName)}</p>
         <p style="margin:0 0 12px;">Tu fais partie des 50 premières personnes à rejoindre la bêta de Veillo. Ton accès est activé.</p>
         <p style="margin:0 0 4px;"><strong>Veillo, c'est quoi ?</strong></p>
         <p style="margin:0;">Une app qui vérifie si tes données personnelles ont fuité sur internet et te dit exactement quoi faire.</p>
