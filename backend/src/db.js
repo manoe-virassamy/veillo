@@ -238,7 +238,7 @@ export async function findWaitlistByEmail(email) {
 export async function unsubscribeWaitlistByToken(token) {
   await ensureSchema();
   const { rows } = await pool.query(
-    'UPDATE waitlist SET unsubscribed = true WHERE unsub_token = $1 RETURNING *',
+    'DELETE FROM waitlist WHERE unsub_token = $1 RETURNING *',
     [token]
   );
   return rows[0] || null;

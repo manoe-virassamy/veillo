@@ -100,8 +100,8 @@ router.post('/invite', async (req, res) => {
 
   try {
     const entry = await findWaitlistByEmail(email);
-    if (entry?.unsubscribed) return res.status(409).json({ error: 'Cette personne s\'est désinscrite' });
-    await inviteWaitlistEntry(email, entry?.first_name, entry?.unsub_token);
+    if (!entry) return res.status(404).json({ error: "Cette personne n'est plus sur la liste d'attente" });
+    await inviteWaitlistEntry(email, entry.first_name, entry.unsub_token);
     res.json({ ok: true });
   } catch (err) {
     console.error("Erreur d'envoi de l'invitation bêta:", err);
