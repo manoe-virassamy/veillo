@@ -7,6 +7,28 @@ import Footer from "../components/Footer";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+function buildTags(result) {
+  if (!result) return [];
+  const tags = [];
+
+  if (result.breachCount > 0) {
+    tags.push({
+      label: `${result.breachCount} fuite${result.breachCount > 1 ? "s" : ""} détectée${result.breachCount > 1 ? "s" : ""}`,
+      color: "#C9483A",
+    });
+  } else {
+    tags.push({ label: "Aucune fuite détectée", color: "var(--sage)" });
+  }
+
+  if (result.findings?.some((f) => f.severity === "high")) {
+    tags.push({ label: "Mot de passe exposé", color: "var(--coral)" });
+  }
+
+  tags.push({ label: "2FA recommandée", color: "var(--sage-light)" });
+
+  return tags.slice(0, 3);
+}
+
 export default function Home() {
   const { user, token } = useAuth();
   const [result, setResult] = useState(null);
@@ -66,7 +88,7 @@ export default function Home() {
           {loading && slow && <p className="form-note">Premier chargement un peu long, le serveur se réveille (jusqu'à 30 secondes)...</p>}
           {error && <p className="error-note">{error}</p>}
         </div>
-        <ShieldVisual score={result?.score ?? null} loading={loading} />
+        <ShieldVisual score={result?.score ?? null} tags={buildTags(result)} loading={loading} />
       </section>
 
       <ResultsPanel result={result} email={checkedEmail} onReset={handleReset} />

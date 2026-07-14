@@ -5,15 +5,8 @@ function scoreColor(score) {
   return "#C9483A";
 }
 
-export default function ShieldVisual({ score = null, tags, loading = false }) {
+export default function ShieldVisual({ score = null, tags = [], loading = false }) {
   const hasScore = score !== null && score !== undefined;
-
-  const defaultTags = [
-    { label: "2 fuites détectées", color: "#C9483A" },
-    { label: "Mot de passe exposé", color: "var(--coral)" },
-    { label: "2FA recommandée", color: "var(--sage-light)" },
-  ];
-  const displayTags = tags || (hasScore ? defaultTags : []);
 
   return (
     <div className="shield-visual">
@@ -38,7 +31,7 @@ export default function ShieldVisual({ score = null, tags, loading = false }) {
           </>
         )}
       </div>
-      {displayTags.map((tag, i) => (
+      {tags.map((tag, i) => (
         <div className={`float-tag tag-${i + 1}`} key={tag.label}>
           <span className="dot" style={{ background: tag.color }} />
           {tag.label}
